@@ -1,0 +1,33 @@
+html {
+    scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #D1D5DB;
+    border-radius: 99px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #9CA3AF; 
+}
+
+/* Custom scrollbar — Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #D1D5DB transparent;
+}
+
+body {
+    font-family: 'Poppins', 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+    color: #1A1A1A;
+    background-color: #FFFFFF;
+}
