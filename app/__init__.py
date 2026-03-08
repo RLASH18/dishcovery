@@ -10,6 +10,9 @@ def create_app():
 
     db.init_app(app)
 
+    # Import models
+    from app.models.user import User
+
     # Register routes
     from app.routes.web import register_routes
     register_routes(app)

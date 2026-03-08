@@ -1,0 +1,50 @@
+{% extends "layouts/auth.html" %}
+{% block title %}Register - Dishcovery{% endblock %}
+
+{% block heading %}Join Dishcovery{% endblock %}
+{% block sub_heading %}Start your culinary journey with us today.{% endblock %}
+
+{% block auth_form %}
+<form class="space-y-6" action="{{ url_for('register_post') }}" method="POST">
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+        <div class="relative">
+            <i data-lucide="user" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5"></i>
+            <input type="text" name="name"
+                class="w-full pl-12 pr-4 py-3.5 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                placeholder="John Doe">
+        </div>
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+        <div class="relative">
+            <i data-lucide="mail" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5"></i>
+            <input type="email" name="email"
+                class="w-full pl-12 pr-4 py-3.5 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                placeholder="john@example.com">
+        </div>
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+        <div class="relative">
+            <i data-lucide="lock" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5"></i>
+            <input type="password" name="password"
+                class="w-full pl-12 pr-4 py-3.5 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                placeholder="••••••••">
+        </div>
+    </div>
+
+    <button type="submit"
+        class="w-full bg-primary hover:bg-primary-hover text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 group text-lg">
+        Sign Up <i data-lucide="arrow-right" class="group-hover:translate-x-1 transition-transform w-5 h-5"></i>
+    </button>
+</form>
+
+<div class="mt-10 text-center">
+    <p class="text-gray-600">Already have an account?
+        <a href="{{ url_for('login') }}" class="text-primary font-bold hover:underline">Sign In</a>
+    </p>
+</div>
+{% endblock %}
