@@ -6,7 +6,7 @@ from app.models.user import User
 
 ALLOWED_PROVIDERS = {"google", "facebook"}
 
-class OAuthController:
+class SocialController:
 
     @staticmethod
     def login(provider):

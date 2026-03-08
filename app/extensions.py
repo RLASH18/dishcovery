@@ -1,6 +1,9 @@
 from app import oauth
 
-def register_oauth(app):
+def register_social(app):
+    """Register social OAuth providers (Google, Facebook) using AuthLib."""
+
+    # Google
     oauth.register(
         name="google",
         client_id=app.config["GOOGLE_CLIENT_ID"],
@@ -9,6 +12,7 @@ def register_oauth(app):
         client_kwargs={"scope": "openid email profile"},
     )
 
+    # Facebook
     oauth.register(
         name="facebook",
         client_id=app.config["FACEBOOK_CLIENT_ID"],

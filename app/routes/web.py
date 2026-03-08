@@ -1,6 +1,6 @@
 from flask import render_template
-from app.controllers.auth_controller import AuthController
-from app.controllers.oauth_controller import OAuthController
+from app.controllers.auth.auth_controller import AuthController
+from app.controllers.auth.social_controller import SocialController
 
 def register_routes(app):
     
@@ -27,14 +27,14 @@ def register_routes(app):
     def register_post():
         return AuthController.register()
     
-    # OAuth
+    # Social
     @app.route("/oauth/<provider>")
     def social_login(provider):
-        return OAuthController.login(provider)
+        return SocialController.login(provider)
     
     @app.route("/oauth/<provider>/callback")
     def auth_callback(provider):
-        return OAuthController.callback(provider)
+        return SocialController.callback(provider)
 
     @app.route('/dashboard')
     def dashboard():

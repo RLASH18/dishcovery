@@ -17,8 +17,8 @@ def create_app():
     from app.models.user import User
 
     # Register OAuth providers
-    from app.extensions import register_oauth
-    register_oauth(app)
+    from app.extensions import register_social
+    register_social(app)
 
     # Register routes
     from app.routes.web import register_routes
