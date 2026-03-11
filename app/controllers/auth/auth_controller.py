@@ -1,4 +1,4 @@
-from flask import request, redirect, url_for, flash, render_template
+from flask import request, redirect, url_for, flash, render_template, session
 from app.models.user import User
 from app import db
 
@@ -24,7 +24,11 @@ class AuthController:
             flash('Invalid email or password', 'error')
             return redirect(url_for('login'))
         
-        flash('Login successfull', 'success')
+        # Store authenticated user info in session
+        session['user_id'] = user.id
+        session['user_name'] = user.name
+
+        flash('Login successful', 'success')
         return redirect(url_for('dashboard'))
 
     # Register

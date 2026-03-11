@@ -27,3 +27,6 @@ class Config:
     # OAuth - Facebook
     FACEBOOK_CLIENT_ID = os.getenv('FACEBOOK_CLIENT_ID')
     FACEBOOK_CLIENT_SECRET = os.getenv('FACEBOOK_CLIENT_SECRET')
+
+    # Gemini
+    GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')

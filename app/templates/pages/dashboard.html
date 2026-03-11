@@ -1,0 +1,449 @@
+{% extends "layouts/base.html" %}
+{% block title %}Dashboard — Dishcovery{% endblock %}
+
+{% block layout %}
+    <div class="flex h-screen bg-gray-50 overflow-hidden font-sans" id="app">
+        <!-- Sidebar -->
+        <aside id="sidebar"
+            class="bg-white border-r border-gray-200 flex flex-col z-20 flex-shrink-0 overflow-hidden transition-all duration-300"
+            style="width: 280px;">
+
+            <!-- Logo -->
+            <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+                <a href="/" class="text-2xl font-bold text-primary flex items-center gap-2">
+                    <i data-lucide="chef-hat" class="text-primary w-7 h-7"></i>
+                    Dishcovery
+                </a>
+            </div>
+
+            <!-- New Chat Button -->
+            <div class="p-4">
+                <button id="btn-new-chat"
+                    class="w-full bg-primary/10 text-primary hover:bg-primary hover:text-white font-semibold py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2">
+                    <i data-lucide="plus" class="w-5 h-5"></i>
+                    New Discovery
+                </button>
+            </div>
+
+            <!-- Recent Chats -->
+            <div class="flex-1 overflow-y-auto p-4">
+                <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4 px-2">Recent Chats</h3>
+                <div id="chat-list" class="space-y-1">
+                    <!-- Injected by JS -->
+                </div>
+            </div>
+
+            <!-- User Footer -->
+            <div class="p-4 border-t border-gray-100">
+                <div class="flex items-center gap-3 px-2 py-2">
+                    <div
+                        class="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center text-secondary font-bold text-sm">
+                        {{ current_user.name[:2].upper() if current_user is defined and current_user else 'ME' }}
+                    </div>
+                    <div class="flex-1 overflow-hidden">
+                        <p class="text-sm font-semibold text-gray-900 truncate">
+                            {{ current_user.name if current_user is defined and current_user else 'Guest' }}
+                        </p>
+                        <p class="text-xs text-gray-500">Member</p>
+                    </div>
+                    <button class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <i data-lucide="settings" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main content -->
+        <div class="flex-1 flex flex-col h-full relative w-full min-w-0">
+
+            <!-- Header -->
+            <header
+                class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 md:px-6 flex-shrink-0">
+                <div class="flex items-center gap-4">
+                    <button id="btn-toggle-sidebar" class="text-gray-500 hover:text-gray-700 transition-colors">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                    <h2 class="text-lg font-semibold text-gray-800">Kitchen Assistant</h2>
+                </div>
+                <div class="flex items-center gap-4">
+                    <a href="/" class="text-sm text-gray-500 hover:text-primary transition-colors flex items-center gap-2">
+                        <i data-lucide="log-out" class="w-4 h-4"></i>
+                        <span class="hidden sm:inline">Exit</span>
+                    </a>
+                </div>
+            </header>
+
+            <!-- Chat Messages Area -->
+            <div class="flex-1 overflow-y-auto p-4 md:p-6" id="chat-area">
+                <div class="max-w-3xl mx-auto space-y-6" id="messages-container">
+                    <!-- Messages injected by JS -->
+                </div>
+                <div id="messages-end" class="h-4"></div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="bg-white border-t border-gray-200 p-4 md:p-6 flex-shrink-0">
+                <div class="max-w-3xl mx-auto">
+
+                    <!-- Ingredient Tags -->
+                    <div id="ingredient-tags" class="flex flex-wrap gap-2 mb-3 min-h-[32px] items-center">
+                        <span class="text-sm text-gray-400 flex items-center h-8" id="tags-hint">
+                            Tip: Type <span class="font-mono mx-1 text-primary">+Tomato</span> and press Enter to add
+                            ingredient tags
+                        </span>
+                    </div>
+
+                    <!-- Input Form -->
+                    <form id="chat-form" data-turbo="false"
+                        class="relative flex items-end gap-2 bg-gray-50 border border-gray-200 rounded-2xl p-2 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/20 transition-all">
+                        <button type="button" id="btn-add-ingredient"
+                            class="p-3 text-gray-400 hover:text-primary transition-colors flex-shrink-0"
+                            title="Add ingredient">
+                            <i data-lucide="plus" class="w-6 h-6"></i>
+                        </button>
+
+                        <textarea id="chat-input" placeholder="Type ingredients, ask for a recipe, or search..."
+                            class="flex-1 max-h-32 min-h-[44px] bg-transparent border-none focus:ring-0 resize-none py-3 px-2 outline-none text-gray-700 text-sm leading-relaxed"
+                            rows="1"></textarea>
+
+                        <button type="submit" id="btn-send"
+                            class="p-3 bg-primary text-white rounded-xl hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex-shrink-0 shadow-sm">
+                            <i data-lucide="send" class="w-5 h-5"></i>
+                        </button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ─── Reset guard before Turbo caches the page ─────────
+        // This ensures the dashboard re-initializes on every Turbo visit
+        document.addEventListener('turbo:before-cache', () => {
+            window._dashboardReady = false;
+        });
+
+        document.addEventListener('turbo:load', () => {
+
+            // ─── Guard: Prevent double-fire on same page load ─────
+            if (window._dashboardReady) return;
+            window._dashboardReady = true;
+
+
+            // ─── State ────────────────────────────────────────────
+            let currentChatId = null;
+            let ingredients = [];
+            let sidebarOpen = true;
+
+            // ─── DOM References ───────────────────────────────────
+            const chatForm = document.getElementById('chat-form');
+            const chatInput = document.getElementById('chat-input');
+            const messagesEl = document.getElementById('messages-container');
+            const ingredientTags = document.getElementById('ingredient-tags');
+            const chatList = document.getElementById('chat-list');
+            const btnNewChat = document.getElementById('btn-new-chat');
+            const btnToggle = document.getElementById('btn-toggle-sidebar');
+            const sidebar = document.getElementById('sidebar');
+
+            // ─── Sidebar Toggle (GSAP) ────────────────────────────
+            btnToggle.addEventListener('click', () => {
+                sidebarOpen = !sidebarOpen;
+                gsap.to(sidebar, {
+                    width: sidebarOpen ? 280 : 0,
+                    opacity: sidebarOpen ? 1 : 0,
+                    duration: 0.3,
+                    ease: 'power2.inOut'
+                });
+            });
+
+            // ─── Auto-textarea resize ─────────────────────────────
+            chatInput.addEventListener('input', () => {
+                chatInput.style.height = 'auto';
+                chatInput.style.height = Math.min(chatInput.scrollHeight, 128) + 'px';
+            });
+
+            // ─── Enter to send / shift+enter for newline ──────────
+            chatInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    chatForm.dispatchEvent(new Event('submit', { bubbles: true }));
+                }
+            });
+
+            // ─── Load Chat List ───────────────────────────────────
+            async function loadChatList() {
+                try {
+                    const res = await fetch('/api/chats');
+                    const chats = await res.json();
+                    chatList.innerHTML = '';
+
+                    if (chats.length === 0) {
+                        chatList.innerHTML = `<p class="text-xs text-gray-400 px-3 py-2">No chats yet. Start a new one!</p>`;
+                        return;
+                    }
+
+                    chats.forEach(chat => {
+                        const btn = document.createElement('button');
+                        btn.className = `w-full text-left px-3 py-2.5 rounded-lg hover:bg-gray-50 text-gray-700 text-sm flex items-center gap-3 transition-colors group ${chat.id === currentChatId ? 'bg-primary/10 text-primary' : ''}`;
+                        btn.innerHTML = `
+                        <i data-lucide="message-square" class="w-4 h-4 text-gray-400 flex-shrink-0"></i>
+                        <span class="truncate flex-1">${escapeHtml(chat.title)}</span>
+                        <span class="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-red-500 delete-chat-btn" data-id="${chat.id}">
+                            <i data-lucide="trash-2" class="w-3 h-3"></i>
+                        </span>`;
+                        btn.addEventListener('click', (e) => {
+                            // Don't load chat if delete icon was clicked
+                            if (e.target.closest('.delete-chat-btn')) return;
+                            loadChat(chat.id);
+                        });
+                        chatList.appendChild(btn);
+                    });
+
+                    lucide.createIcons();
+
+                    // Delete chat listeners
+                    document.querySelectorAll('.delete-chat-btn').forEach(btn => {
+                        btn.addEventListener('click', async (e) => {
+                            e.stopPropagation();
+                            const id = btn.dataset.id;
+                            await fetch(`/api/chats/${id}`, { method: 'DELETE' });
+                            if (parseInt(id) === currentChatId) {
+                                messagesEl.innerHTML = '';
+                                currentChatId = null;
+                            }
+                            loadChatList();
+                        });
+                    });
+
+                } catch (err) {
+                    console.error('Failed to load chats:', err);
+                }
+            }
+
+            // ─── Load a Chat's Messages ───────────────────────────
+            async function loadChat(chatId) {
+                currentChatId = chatId;
+                messagesEl.innerHTML = '';
+
+                try {
+                    const res = await fetch(`/api/chats/${chatId}/messages`);
+                    const messages = await res.json();
+                    messages.forEach(msg => appendMessage(msg.role, msg.content, false));
+                    scrollToBottom();
+                    loadChatList(); // Re-highlight active chat
+                } catch (err) {
+                    console.error('Failed to load messages:', err);
+                }
+            }
+
+            // ─── New Chat ─────────────────────────────────────────
+            btnNewChat.addEventListener('click', async () => {
+                try {
+                    const res = await fetch('/api/chats', { method: 'POST' });
+                    const data = await res.json();
+                    currentChatId = data.chat_id;
+                    messagesEl.innerHTML = '';
+                    ingredients = [];
+                    renderTags();
+                    loadChatList();
+                    appendMessage('model', "Hi there! I'm your Dishcovery chef 👨‍🍳 What ingredients do you have in your kitchen today, or what are you craving?");
+                } catch (err) {
+                    console.error('Failed to create chat:', err);
+                }
+            });
+
+            // ─── Send Message ─────────────────────────────────────
+            chatForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const text = chatInput.value.trim();
+
+                // Ingredient tag shortcut: "+Tomato"
+                if (text.startsWith('+')) {
+                    const ingName = text.substring(1).trim();
+                    if (ingName) addIngredient(ingName);
+                    chatInput.value = '';
+                    chatInput.style.height = 'auto';
+                    return;
+                }
+
+                // Build message text
+                let userText = text;
+                if (!text && ingredients.length > 0) {
+                    userText = `Find recipes using: ${ingredients.join(', ')}`;
+                }
+                if (!userText) return;
+
+                if (!currentChatId) {
+                    // Auto-create a chat if none exists
+                    const res = await fetch('/api/chats', { method: 'POST' });
+                    const data = await res.json();
+                    currentChatId = data.chat_id;
+                }
+
+                appendMessage('user', userText);
+                chatInput.value = '';
+                chatInput.style.height = 'auto';
+                scrollToBottom();
+
+                const typingId = appendTyping();
+
+                try {
+                    const res = await fetch(`/api/chats/${currentChatId}/messages`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message: userText })
+                    });
+                    const data = await res.json();
+
+                    removeTyping(typingId);
+                    appendMessage('model', data.reply);
+                    loadChatList();
+                    scrollToBottom();
+                } catch (err) {
+                    removeTyping(typingId);
+                    appendMessage('model', '⚠️ Something went wrong. Please try again.');
+                    console.error(err);
+                }
+            });
+
+            // ─── Append Message ───────────────────────────────────
+            function appendMessage(role, text, animate = true) {
+                const isUser = role === 'user';
+                const div = document.createElement('div');
+                div.className = `flex gap-4 ${isUser ? 'flex-row-reverse' : ''}`;
+
+                // Convert markdown-style line breaks to <br> for readability
+                const formatted = escapeHtml(text).replace(/\n/g, '<br>');
+
+                div.innerHTML = `
+                <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0
+                            ${isUser ? 'bg-primary/20 text-primary' : 'bg-secondary/20 text-secondary'}">
+                    <i data-lucide="${isUser ? 'user' : 'chef-hat'}" class="w-5 h-5"></i>
+                </div>
+                <div class="flex flex-col max-w-[80%] ${isUser ? 'items-end' : 'items-start'}">
+                    <div class="px-5 py-3.5 rounded-2xl text-sm leading-relaxed
+                                ${isUser
+                        ? 'bg-primary text-white rounded-tr-sm'
+                        : 'bg-white border border-gray-100 shadow-sm text-gray-800 rounded-tl-sm'}">
+                        ${formatted}
+                    </div>
+                </div>`;
+
+                messagesEl.appendChild(div);
+                lucide.createIcons();
+
+                if (animate) {
+                    gsap.from(div, { opacity: 0, y: 12, duration: 0.3, ease: 'power2.out' });
+                }
+            }
+
+            // ─── Typing Indicator ─────────────────────────────────
+            function appendTyping() {
+                const id = 'typing-' + Date.now();
+                const div = document.createElement('div');
+                div.id = id;
+                div.className = 'flex gap-4';
+                div.innerHTML = `
+                <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-secondary/20 text-secondary">
+                    <i data-lucide="chef-hat" class="w-5 h-5"></i>
+                </div>
+                <div class="px-5 py-4 rounded-2xl bg-white border border-gray-100 shadow-sm rounded-tl-sm">
+                    <div class="flex gap-1.5 items-center">
+                        <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0s"></span>
+                        <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.15s"></span>
+                        <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.3s"></span>
+                    </div>
+                </div>`;
+                messagesEl.appendChild(div);
+                lucide.createIcons();
+                gsap.from(div, { opacity: 0, y: 10, duration: 0.25 });
+                scrollToBottom();
+                return id;
+            }
+
+            function removeTyping(id) {
+                document.getElementById(id)?.remove();
+            }
+
+            // ─── Ingredient Tags ──────────────────────────────────
+            function addIngredient(name) {
+                if (!name || ingredients.map(i => i.toLowerCase()).includes(name.toLowerCase())) return;
+                ingredients.push(name);
+                renderTags();
+            }
+
+            function renderTags() {
+                ingredientTags.innerHTML = '';
+
+                if (ingredients.length === 0) {
+                    ingredientTags.innerHTML = `
+                    <span class="text-sm text-gray-400 flex items-center h-8">
+                        Tip: Type <span class="font-mono mx-1 text-primary">+Tomato</span> and press Enter to add ingredient tags
+                    </span>`;
+                    return;
+                }
+
+                ingredients.forEach(ing => {
+                    const span = document.createElement('span');
+                    span.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary text-sm font-medium rounded-lg border border-primary/20';
+                    span.innerHTML = `
+                    ${escapeHtml(ing)}
+                    <button type="button" class="hover:bg-primary/20 rounded-full p-0.5 transition-colors remove-tag" data-ing="${escapeHtml(ing)}">
+                        <i data-lucide="x" class="w-3 h-3"></i>
+                    </button>`;
+                    ingredientTags.appendChild(span);
+                    gsap.from(span, { scale: 0.8, opacity: 0, duration: 0.2, ease: 'back.out(1.5)' });
+                });
+
+                lucide.createIcons();
+
+                document.querySelectorAll('.remove-tag').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        ingredients = ingredients.filter(i => i !== btn.dataset.ing);
+                        renderTags();
+                    });
+                });
+            }
+
+            // ─── Helpers ──────────────────────────────────────────
+            function scrollToBottom() {
+                document.getElementById('messages-end')?.scrollIntoView({ behavior: 'smooth' });
+            }
+
+            function escapeHtml(text) {
+                return String(text)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;');
+            }
+
+            // ─── Init: Auto-create first chat on load ─────────────
+            (async () => {
+                await loadChatList();
+
+                // Only auto-create if no chats exist
+                try {
+                    const res = await fetch('/api/chats');
+                    const chats = await res.json();
+
+                    if (chats.length > 0) {
+                        // Load the most recent chat
+                        await loadChat(chats[0].id);
+                    } else {
+                        // Create a fresh chat
+                        const newRes = await fetch('/api/chats', { method: 'POST' });
+                        const newData = await newRes.json();
+                        currentChatId = newData.chat_id;
+                        appendMessage('model', "Hi there! I'm your Dishcovery chef 👨‍🍳 What ingredients do you have in your kitchen today, or what are you craving?");
+                        loadChatList();
+                    }
+                } catch (err) {
+                    console.error('Init failed:', err);
+                }
+            })();
+
+        });
+    </script>
+{% endblock %}
