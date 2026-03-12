@@ -14,10 +14,17 @@
                         class="text-gray-600 hover:text-primary font-medium transition-colors">Features</a>
                     <a href="#contact"
                         class="text-gray-600 hover:text-primary font-medium transition-colors">Contact</a>
-                    <a href="{{ url_for('login') }}"
-                        class="bg-primary hover:bg-primary-hover text-white font-semibold py-2 px-6 rounded-full transition-colors shadow-md hover:shadow-lg">
-                        Get Started
-                    </a>
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('dashboard') }}"
+                            class="bg-primary hover:bg-primary-hover text-white font-semibold py-2 px-6 rounded-full transition-colors shadow-md hover:shadow-lg">
+                            Dashboard
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}"
+                            class="bg-primary hover:bg-primary-hover text-white font-semibold py-2 px-6 rounded-full transition-colors shadow-md hover:shadow-lg">
+                            Get Started
+                        </a>
+                    {% endif %}
                 </div>
 
                 <button id="mobile-menu-btn" class="md:hidden text-gray-600 hover:text-primary transition-colors">
@@ -33,10 +40,17 @@
                         class="mobile-link text-gray-600 hover:text-primary font-medium py-2 block">Features</a>
                     <a href="#contact"
                         class="mobile-link text-gray-600 hover:text-primary font-medium py-2 block">Contact</a>
-                    <a href="{{ url_for('login') }}"
-                        class="bg-primary hover:bg-primary-hover text-white font-semibold py-3 px-6 rounded-full transition-colors shadow-md w-full">
-                        Get Started
-                    </a>
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('dashboard') }}"
+                            class="bg-primary hover:bg-primary-hover text-white font-semibold py-3 px-6 rounded-full transition-colors shadow-md w-full">
+                            Dashboard
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}"
+                            class="bg-primary hover:bg-primary-hover text-white font-semibold py-3 px-6 rounded-full transition-colors shadow-md w-full">
+                            Get Started
+                        </a>
+                    {% endif %}
                 </div>
             </div>
         </nav>
@@ -53,10 +67,17 @@
                         <p class="text-lg md:text-xl text-gray-600 max-w-lg mx-auto md:mx-0">
                             Input your ingredients and Dishcovery suggests delicious dishes for you.
                         </p>
-                        <a href="{{ url_for('login') }}"
-                            class="inline-block bg-primary hover:bg-primary-hover text-white font-semibold py-4 px-8 rounded-full transition-colors duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                            Try Dishcovery
-                        </a>
+                        {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('dashboard') }}"
+                                class="inline-block bg-primary hover:bg-primary-hover text-white font-semibold py-4 px-8 rounded-full transition-colors duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                                Go to Dashboard
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('login') }}"
+                                class="inline-block bg-primary hover:bg-primary-hover text-white font-semibold py-4 px-8 rounded-full transition-colors duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                                Try Dishcovery
+                            </a>
+                        {% endif %}
                     </div>
 
                     <div id="hero-image"

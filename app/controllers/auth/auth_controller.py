@@ -1,5 +1,5 @@
 from flask import request, redirect, url_for, flash, render_template
-from flask_login import login_user
+from flask_login import login_user, current_user
 from app import db
 from app.models.user import User
 
@@ -8,6 +8,9 @@ class AuthController:
     # Login
     @staticmethod
     def show_login():
+        if current_user.is_authenticated:
+            return redirect(url_for('dashboard'))
+        
         return render_template('pages/auth/login.html')
     
     @staticmethod
@@ -34,6 +37,9 @@ class AuthController:
     # Register
     @staticmethod
     def show_register():
+        if current_user.is_authenticated:
+            return redirect(url_for('dashboard'))
+        
         return render_template('pages/auth/register.html')
     
     @staticmethod
