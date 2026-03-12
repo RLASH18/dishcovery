@@ -100,7 +100,7 @@
                     </div>
 
                     <!-- Input Form -->
-                    <form id="chat-form" data-turbo="false"
+                    <form id="chat-form"
                         class="relative flex items-end gap-2 bg-gray-50 border border-gray-200 rounded-2xl p-2 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/20 transition-all">
                         <button type="button" id="btn-add-ingredient"
                             class="p-3 text-gray-400 hover:text-primary transition-colors flex-shrink-0"
@@ -124,18 +124,7 @@
     </div>
 
     <script>
-        // Reset guard before Turbo caches the page
-        // This ensures the dashboard re-initializes on every Turbo visit
-        document.addEventListener('turbo:before-cache', () => {
-            window._dashboardReady = false;
-        });
-
-        document.addEventListener('turbo:load', () => {
-
-            // Prevent double-fire on same page load
-            if (window._dashboardReady) return;
-            window._dashboardReady = true;
-
+        document.addEventListener('DOMContentLoaded', () => {
 
             // Application State
             let currentChatId = null;
@@ -157,24 +146,26 @@
             const userDropdown = document.getElementById('user-dropdown');
             const userMenuChevron = document.getElementById('user-menu-chevron');
 
-            userMenuButton.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const isHidden = userDropdown.classList.contains('hidden');
-                
-                if (isHidden) {
-                    userDropdown.classList.remove('hidden');
-                    gsap.fromTo(userDropdown, 
-                        { opacity: 0, y: 10, scale: 0.95 },
-                        { opacity: 1, y: 0, scale: 1, duration: 0.2, ease: 'back.out(1.2)' }
-                    );
-                    userMenuChevron.style.transform = 'rotate(180deg)';
-                } else {
-                    closeUserDropdown();
-                }
-            });
+            if (userMenuButton) {
+                userMenuButton.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isHidden = userDropdown.classList.contains('hidden');
+                    
+                    if (isHidden) {
+                        userDropdown.classList.remove('hidden');
+                        gsap.fromTo(userDropdown, 
+                            { opacity: 0, y: 10, scale: 0.95 },
+                            { opacity: 1, y: 0, scale: 1, duration: 0.2, ease: 'back.out(1.2)' }
+                        );
+                        userMenuChevron.style.transform = 'rotate(180deg)';
+                    } else {
+                        closeUserDropdown();
+                    }
+                });
+            }
 
             function closeUserDropdown() {
-                if (!userDropdown.classList.contains('hidden')) {
+                if (userDropdown && !userDropdown.classList.contains('hidden')) {
                     gsap.to(userDropdown, {
                         opacity: 0, y: 10, scale: 0.95, duration: 0.15, onComplete: () => {
                             userDropdown.classList.add('hidden');
@@ -186,35 +177,39 @@
 
             // Close dropdown when clicking outside
             document.addEventListener('click', (e) => {
-                if (!userDropdown.contains(e.target) && !userMenuButton.contains(e.target)) {
+                if (userDropdown && !userDropdown.contains(e.target) && !userMenuButton.contains(e.target)) {
                     closeUserDropdown();
                 }
             });
 
             // Sidebar Toggle with GSAP animation
-            btnToggle.addEventListener('click', () => {
-                sidebarOpen = !sidebarOpen;
-                gsap.to(sidebar, {
-                    width: sidebarOpen ? 280 : 0,
-                    opacity: sidebarOpen ? 1 : 0,
-                    duration: 0.3,
-                    ease: 'power2.inOut'
+            if (btnToggle) {
+                btnToggle.addEventListener('click', () => {
+                    sidebarOpen = !sidebarOpen;
+                    gsap.to(sidebar, {
+                        width: sidebarOpen ? 280 : 0,
+                        opacity: sidebarOpen ? 1 : 0,
+                        duration: 0.3,
+                        ease: 'power2.inOut'
+                    });
                 });
-            });
+            }
 
             // Auto-resize textarea as user types
-            chatInput.addEventListener('input', () => {
-                chatInput.style.height = 'auto';
-                chatInput.style.height = Math.min(chatInput.scrollHeight, 128) + 'px';
-            });
+            if (chatInput) {
+                chatInput.addEventListener('input', () => {
+                    chatInput.style.height = 'auto';
+                    chatInput.style.height = Math.min(chatInput.scrollHeight, 128) + 'px';
+                });
 
-            // Handle Enter key for sending messages (Shift+Enter for new line)
-            chatInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    chatForm.dispatchEvent(new Event('submit', { bubbles: true }));
-                }
-            });
+                // Handle Enter key for sending messages (Shift+Enter for new line)
+                chatInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        if (chatForm) chatForm.dispatchEvent(new Event('submit', { bubbles: true }));
+                    }
+                });
+            }
 
             // Fetch and display the list of recent chats
             async function loadChatList() {

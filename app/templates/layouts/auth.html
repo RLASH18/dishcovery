@@ -90,48 +90,39 @@
     </div>
 
     <script>
-        let ctx; // Store GSAP context here
+        document.addEventListener('DOMContentLoaded', () => {
+            const cardBottom = document.getElementById('card-bottom');
+            if (!cardBottom) return;
 
-        document.addEventListener('turbo:load', () => {
-            // Clear any old context from previous page visits
-            if (ctx) ctx.revert();
-
-            ctx = gsap.context(() => {
-                // Initial stack positions
-                gsap.set(["#card-bottom", "#card-top"], {
-                    transformOrigin: "bottom center",
-                    y: 0,
-                    x: 0
-                });
-
-                // "Closed" starting look
-                gsap.set("#card-bottom", { rotate: -8, x: -20, y: 15 });
-                gsap.set("#card-top", { rotate: 6, x: 10 });
-
-                // Fan-out timeline
-                const fanOut = gsap.timeline({
-                    paused: true,
-                    defaults: { duration: 0.6, ease: "power4.out" }
-                });
-
-                fanOut.to("#card-bottom", { x: -70, rotate: -18, y: 15, scale: 1.05, duration: 0.5 }, 0);
-                fanOut.to("#card-top", { x: 70, rotate: 18, y: -5, scale: 1.05, duration: 0.5 }, 0);
-
-                // Hover logic
-                const container = document.getElementById('cards-container');
-                if (container) {
-                    container.addEventListener("mouseenter", () => fanOut.play());
-                    container.addEventListener("mouseleave", () => fanOut.reverse());
-                }
-
-                // Page load entrance
-                gsap.from("#cards-container", { y: 40, opacity: 0, duration: 1.2, ease: "expo.out" });
+            // Initial stack positions
+            gsap.set(["#card-bottom", "#card-top"], {
+                transformOrigin: "bottom center",
+                y: 0,
+                x: 0
             });
-        });
 
-        // Clean up everything before Turbo caches the page
-        document.addEventListener("turbo:before-cache", () => {
-            if (ctx) ctx.revert();
+            // "Closed" starting look
+            gsap.set("#card-bottom", { rotate: -8, x: -20, y: 15 });
+            gsap.set("#card-top", { rotate: 6, x: 10 });
+
+            // Fan-out timeline
+            const fanOut = gsap.timeline({
+                paused: true,
+                defaults: { duration: 0.6, ease: "power4.out" }
+            });
+
+            fanOut.to("#card-bottom", { x: -70, rotate: -18, y: 15, scale: 1.05, duration: 0.5 }, 0);
+            fanOut.to("#card-top", { x: 70, rotate: 18, y: -5, scale: 1.05, duration: 0.5 }, 0);
+
+            // Hover logic
+            const container = document.getElementById('cards-container');
+            if (container) {
+                container.addEventListener("mouseenter", () => fanOut.play());
+                container.addEventListener("mouseleave", () => fanOut.reverse());
+            }
+
+            // Page load entrance
+            gsap.from("#cards-container", { y: 40, opacity: 0, duration: 1.2, ease: "expo.out" });
         });
     </script>
 {% endblock %}

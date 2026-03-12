@@ -256,92 +256,82 @@
     </div>
 
     <script>
-        let landingCtx;
-
-        document.addEventListener('turbo:load', () => {
-            if (landingCtx) landingCtx.revert();
-
+        document.addEventListener('DOMContentLoaded', () => {
             gsap.registerPlugin(ScrollTrigger);
 
-            landingCtx = gsap.context(() => {
-                // Navbar — #navbar scroll + mobile menu toggle
-                const navbar = document.getElementById('navbar');
-                const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-                const mobileMenu = document.getElementById('mobile-menu');
-                const iconMenu = document.getElementById('icon-menu');
-                const iconX = document.getElementById('icon-x');
-                const mobileLinks = document.querySelectorAll('.mobile-link');
+            // Navbar — #navbar scroll + mobile menu toggle
+            const navbar = document.getElementById('navbar');
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const iconMenu = document.getElementById('icon-menu');
+            const iconX = document.getElementById('icon-x');
+            const mobileLinks = document.querySelectorAll('.mobile-link');
 
-                const handleScroll = () => {
-                    if (window.scrollY > 20) {
-                        navbar.classList.remove('bg-transparent', 'py-6');
-                        navbar.classList.add('bg-white/80', 'backdrop-blur-md', 'shadow-sm', 'py-4');
-                    } else {
-                        navbar.classList.add('bg-transparent', 'py-6');
-                        navbar.classList.remove('bg-white/80', 'backdrop-blur-md', 'shadow-sm', 'py-4');
-                    }
-                };
-                window.addEventListener('scroll', handleScroll);
-
-                let isMobileMenuOpen = false;
-                function toggleMenu() {
-                    isMobileMenuOpen = !isMobileMenuOpen;
-                    if (isMobileMenuOpen) {
-                        iconMenu.classList.add('hidden');
-                        iconX.classList.remove('hidden');
-                        gsap.to(mobileMenu, { height: 'auto', opacity: 1, duration: 0.3, ease: 'power2.out' });
-                    } else {
-                        iconMenu.classList.remove('hidden');
-                        iconX.classList.add('hidden');
-                        gsap.to(mobileMenu, { height: 0, opacity: 0, duration: 0.3, ease: 'power2.in' });
-                    }
+            const handleScroll = () => {
+                if (window.scrollY > 20) {
+                    navbar.classList.remove('bg-transparent', 'py-6');
+                    navbar.classList.add('bg-white/80', 'backdrop-blur-md', 'shadow-sm', 'py-4');
+                } else {
+                    navbar.classList.add('bg-transparent', 'py-6');
+                    navbar.classList.remove('bg-white/80', 'backdrop-blur-md', 'shadow-sm', 'py-4');
                 }
+            };
+            window.addEventListener('scroll', handleScroll);
 
-                if (mobileMenuBtn) {
-                    mobileMenuBtn.addEventListener('click', toggleMenu);
+            let isMobileMenuOpen = false;
+            function toggleMenu() {
+                isMobileMenuOpen = !isMobileMenuOpen;
+                if (isMobileMenuOpen) {
+                    iconMenu.classList.add('hidden');
+                    iconX.classList.remove('hidden');
+                    gsap.to(mobileMenu, { height: 'auto', opacity: 1, duration: 0.3, ease: 'power2.out' });
+                } else {
+                    iconMenu.classList.remove('hidden');
+                    iconX.classList.add('hidden');
+                    gsap.to(mobileMenu, { height: 0, opacity: 0, duration: 0.3, ease: 'power2.in' });
                 }
+            }
 
-                mobileLinks.forEach(link => {
-                    link.addEventListener('click', () => { if (isMobileMenuOpen) toggleMenu(); });
-                });
+            if (mobileMenuBtn) {
+                mobileMenuBtn.addEventListener('click', toggleMenu);
+            }
 
-                // Hero — #hero-content, #hero-image entrance animation
-                const tl = gsap.timeline();
-                tl.from("#hero-content", {
-                    y: 50, opacity: 0, duration: 1, ease: 'power3.out'
-                }).from("#hero-image", {
-                    y: 50, opacity: 0, duration: 1, ease: 'power3.out'
-                }, '-=0.5');
-
-                // Features — .feature-card staggered scroll animation
-                document.querySelectorAll('.feature-card').forEach((card, index) => {
-                    gsap.from(card, {
-                        scrollTrigger: { trigger: card, start: 'top 85%', toggleActions: 'play none none reverse' },
-                        y: 50, opacity: 0, duration: 0.8, delay: index * 0.2, ease: 'power3.out'
-                    });
-                });
-
-                // Contact — #contact-text and #contact-form scroll animation
-                const contactSection = document.getElementById('contact');
-                if (contactSection) {
-                    gsap.from("#contact-text", {
-                        scrollTrigger: { trigger: contactSection, start: 'top 80%' },
-                        y: 30, opacity: 0, duration: 0.8, ease: 'power3.out'
-                    });
-                    gsap.from("#contact-form", {
-                        scrollTrigger: { trigger: contactSection, start: 'top 70%' },
-                        y: 50, opacity: 0, duration: 0.8, delay: 0.2, ease: 'power3.out'
-                    });
-                }
-
-                // Footer — #current-year dynamic value
-                const yearEl = document.getElementById('current-year');
-                if (yearEl) yearEl.textContent = new Date().getFullYear();
+            mobileLinks.forEach(link => {
+                link.addEventListener('click', () => { if (isMobileMenuOpen) toggleMenu(); });
             });
-        });
 
-        document.addEventListener('turbo:before-cache', () => {
-            if (landingCtx) landingCtx.revert();
+            // Hero — #hero-content, #hero-image entrance animation
+            const tl = gsap.timeline();
+            tl.from("#hero-content", {
+                y: 50, opacity: 0, duration: 1, ease: 'power3.out'
+            }).from("#hero-image", {
+                y: 50, opacity: 0, duration: 1, ease: 'power3.out'
+            }, '-=0.5');
+
+            // Features — .feature-card staggered scroll animation
+            document.querySelectorAll('.feature-card').forEach((card, index) => {
+                gsap.from(card, {
+                    scrollTrigger: { trigger: card, start: 'top 85%', toggleActions: 'play none none reverse' },
+                    y: 50, opacity: 0, duration: 0.8, delay: index * 0.2, ease: 'power3.out'
+                });
+            });
+
+            // Contact — #contact-text and #contact-form scroll animation
+            const contactSection = document.getElementById('contact');
+            if (contactSection) {
+                gsap.from("#contact-text", {
+                    scrollTrigger: { trigger: contactSection, start: 'top 80%' },
+                    y: 30, opacity: 0, duration: 0.8, ease: 'power3.out'
+                });
+                gsap.from("#contact-form", {
+                    scrollTrigger: { trigger: contactSection, start: 'top 70%' },
+                    y: 50, opacity: 0, duration: 0.8, delay: 0.2, ease: 'power3.out'
+                });
+            }
+
+            // Footer — #current-year dynamic value
+            const yearEl = document.getElementById('current-year');
+            if (yearEl) yearEl.textContent = new Date().getFullYear();
         });
     </script>
 {% endblock %}

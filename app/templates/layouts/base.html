@@ -12,9 +12,6 @@
         href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
 
-    <!-- Turbo (SPA-like navigation) -->
-    <script src="https://unpkg.com/@hotwired/turbo@7.3.0/dist/turbo.es2017-umd.js"></script>
-
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="{{ url_for('static', filename='js/tailwind.config.js') }}"></script>
@@ -30,8 +27,7 @@
     {% block layout %}{% endblock %}
 
     <script>
-        // Change DOMContentLoaded to turbo:load
-        document.addEventListener('turbo:load', () => {
+        document.addEventListener('DOMContentLoaded', () => {
             // Initialize Lucide Icons
             lucide.createIcons();
         });
