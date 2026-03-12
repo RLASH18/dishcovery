@@ -1,27 +1,24 @@
-from flask import request, jsonify, session
+from flask import request, jsonify
+from flask_login import current_user
 from app.services.chat_service import ChatService
 
 class ChatController:
 
     @staticmethod
     def new_chat():
-        user_id = session.get('user_id')
-
-        if not user_id:
+        if not current_user.is_authenticated:
             return jsonify({ "error": "Unauthorized" }), 401
 
-        chat = ChatService.create_chat(user_id)
+        chat = ChatService.create_chat(current_user.id)
 
         return jsonify({ "chat_id": chat.id }), 201
     
     @staticmethod
     def get_chats():
-        user_id = session.get('user_id')
-
-        if not user_id:
+        if not current_user.is_authenticated:
             return jsonify([]), 200
 
-        chats = ChatService.get_user_chats(user_id)
+        chats = ChatService.get_user_chats(current_user.id)
 
         return jsonify([
             {

@@ -1,4 +1,5 @@
 from flask import render_template
+from flask_login import login_required
 from app.controllers.auth.auth_controller import AuthController
 from app.controllers.auth.social_controller import SocialController
 from app.controllers.chat_controller import ChatController
@@ -38,6 +39,7 @@ def register_routes(app):
         return SocialController.callback(provider)
 
     @app.route('/dashboard')
+    @login_required
     def dashboard():
         return render_template('pages/dashboard.html')
 

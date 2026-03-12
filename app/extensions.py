@@ -1,4 +1,7 @@
+from flask_login import LoginManager
 from app import oauth
+
+login_manager = LoginManager()
 
 def register_social(app):
     """Register social OAuth providers (Google, Facebook) using AuthLib."""
@@ -22,3 +25,11 @@ def register_social(app):
         api_base_url="https://graph.facebook.com/",
         client_kwargs={"scope": "email public_profile"},
     )
+
+def register_auth(app):
+    """Register Flask-login"""
+    
+    login_manager.init_app(app)
+    login_manager.login_view = 'login'
+    login_manager.login_message = 'Please login to access this page'
+    login_manager.login_message_category = 'warning'

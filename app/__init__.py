@@ -18,9 +18,10 @@ def create_app():
     from app.models.chat import Chat
     from app.models.message import Message
 
-    # Register OAuth providers
-    from app.extensions import register_social
+    # Register auth and social login providers
+    from app.extensions import register_social, register_auth
     register_social(app)
+    register_auth(app)
 
     # Register routes
     from app.routes.web import register_routes
