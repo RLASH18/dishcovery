@@ -118,7 +118,7 @@
     </div>
 
     <script>
-        // ─── Reset guard before Turbo caches the page ─────────
+        // Reset guard before Turbo caches the page
         // This ensures the dashboard re-initializes on every Turbo visit
         document.addEventListener('turbo:before-cache', () => {
             window._dashboardReady = false;
@@ -126,17 +126,17 @@
 
         document.addEventListener('turbo:load', () => {
 
-            // ─── Guard: Prevent double-fire on same page load ─────
+            // Prevent double-fire on same page load
             if (window._dashboardReady) return;
             window._dashboardReady = true;
 
 
-            // ─── State ────────────────────────────────────────────
+            // Application State
             let currentChatId = null;
             let ingredients = [];
             let sidebarOpen = true;
 
-            // ─── DOM References ───────────────────────────────────
+            // DOM Element References
             const chatForm = document.getElementById('chat-form');
             const chatInput = document.getElementById('chat-input');
             const messagesEl = document.getElementById('messages-container');
@@ -146,7 +146,7 @@
             const btnToggle = document.getElementById('btn-toggle-sidebar');
             const sidebar = document.getElementById('sidebar');
 
-            // ─── Sidebar Toggle (GSAP) ────────────────────────────
+            // Sidebar Toggle with GSAP animation
             btnToggle.addEventListener('click', () => {
                 sidebarOpen = !sidebarOpen;
                 gsap.to(sidebar, {
@@ -157,13 +157,13 @@
                 });
             });
 
-            // ─── Auto-textarea resize ─────────────────────────────
+            // Auto-resize textarea as user types
             chatInput.addEventListener('input', () => {
                 chatInput.style.height = 'auto';
                 chatInput.style.height = Math.min(chatInput.scrollHeight, 128) + 'px';
             });
 
-            // ─── Enter to send / shift+enter for newline ──────────
+            // Handle Enter key for sending messages (Shift+Enter for new line)
             chatInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -171,7 +171,7 @@
                 }
             });
 
-            // ─── Load Chat List ───────────────────────────────────
+            // Fetch and display the list of recent chats
             async function loadChatList() {
                 try {
                     const res = await fetch('/api/chats');
@@ -185,6 +185,7 @@
 
                     chats.forEach(chat => {
                         const btn = document.createElement('button');
+                        // Highlight the currently active chat button with primary colors
                         btn.className = `w-full text-left px-3 py-2.5 rounded-lg hover:bg-gray-50 text-gray-700 text-sm flex items-center gap-3 transition-colors group ${chat.id === currentChatId ? 'bg-primary/10 text-primary' : ''}`;
                         btn.innerHTML = `
                         <i data-lucide="message-square" class="w-4 h-4 text-gray-400 flex-shrink-0"></i>
@@ -193,26 +194,28 @@
                             <i data-lucide="trash-2" class="w-3 h-3"></i>
                         </span>`;
                         btn.addEventListener('click', (e) => {
-                            // Don't load chat if delete icon was clicked
+                            // Ensure clicking the delete icon doesn't trigger a chat load
                             if (e.target.closest('.delete-chat-btn')) return;
                             loadChat(chat.id);
                         });
                         chatList.appendChild(btn);
                     });
 
-                    lucide.createIcons();
+                    lucide.createIcons(); // Refresh Lucide icons for dynamically added content
 
-                    // Delete chat listeners
+                    // Set up event listeners for delete buttons in the sidebar
                     document.querySelectorAll('.delete-chat-btn').forEach(btn => {
                         btn.addEventListener('click', async (e) => {
-                            e.stopPropagation();
+                            e.stopPropagation(); // Prevent the parent button's click event
                             const id = btn.dataset.id;
+                            // Delete chat from database
                             await fetch(`/api/chats/${id}`, { method: 'DELETE' });
+                            // If the deleted chat was active, clear the message display
                             if (parseInt(id) === currentChatId) {
                                 messagesEl.innerHTML = '';
                                 currentChatId = null;
                             }
-                            loadChatList();
+                            loadChatList(); // Refresh the sidebar list
                         });
                     });
 
@@ -221,7 +224,7 @@
                 }
             }
 
-            // ─── Load a Chat's Messages ───────────────────────────
+            // Load and display messages for a specific chat
             async function loadChat(chatId) {
                 currentChatId = chatId;
                 messagesEl.innerHTML = '';
@@ -231,34 +234,39 @@
                     const messages = await res.json();
                     messages.forEach(msg => appendMessage(msg.role, msg.content, false));
                     scrollToBottom();
-                    loadChatList(); // Re-highlight active chat
+                    loadChatList(); // Update highlight in sidebar
                 } catch (err) {
                     console.error('Failed to load messages:', err);
                 }
             }
 
-            // ─── New Chat ─────────────────────────────────────────
+            // Start a new chat session and reset local UI state
             btnNewChat.addEventListener('click', async () => {
                 try {
+                    // Create chat in backend
                     const res = await fetch('/api/chats', { method: 'POST' });
                     const data = await res.json();
                     currentChatId = data.chat_id;
+                    
+                    // Clear UI for the fresh session
                     messagesEl.innerHTML = '';
                     ingredients = [];
                     renderTags();
                     loadChatList();
+                    
+                    // Greet the user from the model's perspective
                     appendMessage('model', "Hi there! I'm your Dishcovery chef 👨‍🍳 What ingredients do you have in your kitchen today, or what are you craving?");
                 } catch (err) {
                     console.error('Failed to create chat:', err);
                 }
             });
 
-            // ─── Send Message ─────────────────────────────────────
+            // Handle chat form submission
             chatForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const text = chatInput.value.trim();
 
-                // Ingredient tag shortcut: "+Tomato"
+                // Ingredient tag shortcut: Type "+Ingredient" to quickly add a tag
                 if (text.startsWith('+')) {
                     const ingName = text.substring(1).trim();
                     if (ingName) addIngredient(ingName);
@@ -267,15 +275,15 @@
                     return;
                 }
 
-                // Build message text
+                // If input is empty but tags exist, use tags as the prompt
                 let userText = text;
                 if (!text && ingredients.length > 0) {
                     userText = `Find recipes using: ${ingredients.join(', ')}`;
                 }
                 if (!userText) return;
 
+                // Ensure a chat session exists before sending
                 if (!currentChatId) {
-                    // Auto-create a chat if none exists
                     const res = await fetch('/api/chats', { method: 'POST' });
                     const data = await res.json();
                     currentChatId = data.chat_id;
@@ -286,9 +294,11 @@
                 chatInput.style.height = 'auto';
                 scrollToBottom();
 
+                // Show typing indicator while the AI is "thinking"
                 const typingId = appendTyping();
 
                 try {
+                    // Send message to the backend API
                     const res = await fetch(`/api/chats/${currentChatId}/messages`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -296,9 +306,9 @@
                     });
                     const data = await res.json();
 
-                    removeTyping(typingId);
-                    appendMessage('model', data.reply);
-                    loadChatList();
+                    removeTyping(typingId); // Clear the loading state
+                    appendMessage('model', data.reply); // Show AI's response
+                    loadChatList(); // Update sidebar (titles might change based on first message)
                     scrollToBottom();
                 } catch (err) {
                     removeTyping(typingId);
@@ -307,13 +317,13 @@
                 }
             });
 
-            // ─── Append Message ───────────────────────────────────
+            // Render a message in the chat container
             function appendMessage(role, text, animate = true) {
                 const isUser = role === 'user';
                 const div = document.createElement('div');
                 div.className = `flex gap-4 ${isUser ? 'flex-row-reverse' : ''}`;
 
-                // Parse markdown to HTML
+                // Format: User gets plain text, Model gets Markdown parsing
                 const formatted = isUser
                     ? escapeHtml(text).replace(/\n/g, '<br>')
                     : marked.parse(text)
@@ -340,9 +350,9 @@
                 }
             }
 
-            // ─── Typing Indicator ─────────────────────────────────
+            // Show typing animation while waiting for API response
             function appendTyping() {
-                const id = 'typing-' + Date.now();
+                const id = 'typing-' + Date.now(); // Unique ID for targeting removal later
                 const div = document.createElement('div');
                 div.id = id;
                 div.className = 'flex gap-4';
@@ -352,6 +362,7 @@
                 </div>
                 <div class="px-5 py-4 rounded-2xl bg-white border border-gray-100 shadow-sm rounded-tl-sm">
                     <div class="flex gap-1.5 items-center">
+                        <!-- Three-dot bounce animation -->
                         <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0s"></span>
                         <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.15s"></span>
                         <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.3s"></span>
@@ -359,22 +370,23 @@
                 </div>`;
                 messagesEl.appendChild(div);
                 lucide.createIcons();
-                gsap.from(div, { opacity: 0, y: 10, duration: 0.25 });
+                gsap.from(div, { opacity: 0, y: 10, duration: 0.25 }); // Smooth slide-up entry
                 scrollToBottom();
-                return id;
+                return id; // Return ID so the caller can remove it
             }
 
             function removeTyping(id) {
                 document.getElementById(id)?.remove();
             }
 
-            // ─── Ingredient Tags ──────────────────────────────────
+            // Add a new ingredient to the active list
             function addIngredient(name) {
                 if (!name || ingredients.map(i => i.toLowerCase()).includes(name.toLowerCase())) return;
                 ingredients.push(name);
                 renderTags();
             }
 
+            // Update the UI with current ingredient tags
             function renderTags() {
                 ingredientTags.innerHTML = '';
 
@@ -395,24 +407,27 @@
                         <i data-lucide="x" class="w-3 h-3"></i>
                     </button>`;
                     ingredientTags.appendChild(span);
+                    // Pop-in animation for each new tag
                     gsap.from(span, { scale: 0.8, opacity: 0, duration: 0.2, ease: 'back.out(1.5)' });
                 });
 
                 lucide.createIcons();
 
+                // Add removal logic for each tag's close button
                 document.querySelectorAll('.remove-tag').forEach(btn => {
                     btn.addEventListener('click', () => {
                         ingredients = ingredients.filter(i => i !== btn.dataset.ing);
-                        renderTags();
+                        renderTags(); // Re-render the whole tag list
                     });
                 });
             }
 
-            // ─── Helpers ──────────────────────────────────────────
+            // Helper: Scroll chat area to the latest message
             function scrollToBottom() {
                 document.getElementById('messages-end')?.scrollIntoView({ behavior: 'smooth' });
             }
 
+            // Helper: Prevent XSS by escaping HTML special characters
             function escapeHtml(text) {
                 return String(text)
                     .replace(/&/g, '&amp;')
@@ -421,20 +436,19 @@
                     .replace(/"/g, '&quot;');
             }
 
-            // ─── Init: Auto-create first chat on load ─────────────
+            // Initial application setup on page load
             (async () => {
                 await loadChatList();
 
-                // Only auto-create if no chats exist
                 try {
                     const res = await fetch('/api/chats');
                     const chats = await res.json();
 
                     if (chats.length > 0) {
-                        // Load the most recent chat
+                        // Load the most recent chat if it exists
                         await loadChat(chats[0].id);
                     } else {
-                        // Create a fresh chat
+                        // Otherwise, create a fresh chat automatically
                         const newRes = await fetch('/api/chats', { method: 'POST' });
                         const newData = await newRes.json();
                         currentChatId = newData.chat_id;
