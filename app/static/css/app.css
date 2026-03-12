@@ -31,3 +31,21 @@ body {
     color: #1A1A1A;
     background-color: #FFFFFF;
 }
+
+/* Prose reset inside AI chat bubbles */
+.ai-message p {
+    margin-bottom: 1rem;
+}
+
+.ai-message p:last-child {
+    margin-bottom: 0;
+}
+
+.ai-message ul {
+    margin: 0.25rem 0 0.5rem 1rem;
+    list-style: disc;
+}
+
+.ai-message strong {
+    font-weight: 600;
+}
