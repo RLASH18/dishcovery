@@ -34,8 +34,8 @@
             </div>
 
             <!-- User Footer -->
-            <div class="p-4 border-t border-gray-100">
-                <div class="flex items-center gap-3 px-2 py-2">
+            <div class="p-4 border-t border-gray-100 relative">
+                <div class="flex items-center gap-3 px-2 py-2 cursor-pointer hover:bg-gray-50 rounded-xl transition-colors" id="user-menu-button">
                     <div
                         class="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center text-secondary font-bold text-sm">
                         {{ current_user.name[:2].upper() if current_user is defined and current_user else 'ME' }}
@@ -46,9 +46,21 @@
                         </p>
                         <p class="text-xs text-gray-500">Member</p>
                     </div>
-                    <button class="text-gray-400 hover:text-gray-600 transition-colors">
-                        <i data-lucide="settings" class="w-4 h-4"></i>
-                    </button>
+                    <i data-lucide="chevron-up" class="w-4 h-4 text-gray-400 transition-transform" id="user-menu-chevron"></i>
+                </div>
+
+                <!-- Dropdown Menu -->
+                <div id="user-dropdown" class="hidden absolute bottom-[calc(100%-8px)] left-4 right-4 bg-white border border-gray-100 rounded-xl shadow-lg overflow-hidden z-30 mb-2">
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                        <i data-lucide="settings" class="w-4 h-4 text-gray-400"></i>
+                        Settings
+                    </a>
+                    <form action="{{ url_for('logout') }}" method="POST" class="m-0">
+                        <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-gray-50">
+                            <i data-lucide="log-out" class="w-4 h-4 text-red-500"></i>
+                            Logout
+                        </button>
+                    </form>
                 </div>
             </div>
         </aside>
@@ -64,12 +76,6 @@
                         <i data-lucide="menu" class="w-6 h-6"></i>
                     </button>
                     <h2 class="text-lg font-semibold text-gray-800">Kitchen Assistant</h2>
-                </div>
-                <div class="flex items-center gap-4">
-                    <a href="/" class="text-sm text-gray-500 hover:text-primary transition-colors flex items-center gap-2">
-                        <i data-lucide="log-out" class="w-4 h-4"></i>
-                        <span class="hidden sm:inline">Exit</span>
-                    </a>
                 </div>
             </header>
 
@@ -145,6 +151,45 @@
             const btnNewChat = document.getElementById('btn-new-chat');
             const btnToggle = document.getElementById('btn-toggle-sidebar');
             const sidebar = document.getElementById('sidebar');
+
+            // User Dropdown Logic
+            const userMenuButton = document.getElementById('user-menu-button');
+            const userDropdown = document.getElementById('user-dropdown');
+            const userMenuChevron = document.getElementById('user-menu-chevron');
+
+            userMenuButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isHidden = userDropdown.classList.contains('hidden');
+                
+                if (isHidden) {
+                    userDropdown.classList.remove('hidden');
+                    gsap.fromTo(userDropdown, 
+                        { opacity: 0, y: 10, scale: 0.95 },
+                        { opacity: 1, y: 0, scale: 1, duration: 0.2, ease: 'back.out(1.2)' }
+                    );
+                    userMenuChevron.style.transform = 'rotate(180deg)';
+                } else {
+                    closeUserDropdown();
+                }
+            });
+
+            function closeUserDropdown() {
+                if (!userDropdown.classList.contains('hidden')) {
+                    gsap.to(userDropdown, {
+                        opacity: 0, y: 10, scale: 0.95, duration: 0.15, onComplete: () => {
+                            userDropdown.classList.add('hidden');
+                            userMenuChevron.style.transform = 'rotate(0deg)';
+                        }
+                    });
+                }
+            }
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!userDropdown.contains(e.target) && !userMenuButton.contains(e.target)) {
+                    closeUserDropdown();
+                }
+            });
 
             // Sidebar Toggle with GSAP animation
             btnToggle.addEventListener('click', () => {

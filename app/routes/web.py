@@ -29,6 +29,12 @@ def register_routes(app):
     def register_post():
         return AuthController.register()
     
+    # Logout
+    @app.route('/logout', methods=['POST'])
+    @login_required
+    def logout():
+        return AuthController.logout()
+    
     # Social
     @app.route("/oauth/<provider>")
     def social_login(provider):

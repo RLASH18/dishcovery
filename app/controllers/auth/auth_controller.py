@@ -1,5 +1,5 @@
 from flask import request, redirect, url_for, flash, render_template
-from flask_login import login_user, current_user
+from flask_login import login_user, current_user, logout_user
 from app import db
 from app.models.user import User
 
@@ -31,7 +31,6 @@ class AuthController:
         # Log in the user using Flask-Login
         login_user(user)
 
-        flash('Login successful', 'success')
         return redirect(url_for('dashboard'))
 
     # Register
@@ -66,4 +65,11 @@ class AuthController:
         db.session.commit()
 
         flash('Registration successfull! Please login', 'success')
+        return redirect(url_for('login'))
+
+    # Logout
+    @staticmethod
+    def logout():
+        logout_user()
+
         return redirect(url_for('login'))
