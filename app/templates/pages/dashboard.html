@@ -582,10 +582,19 @@
                 const div = document.createElement('div');
                 div.className = `flex gap-4 ${isUser ? 'flex-row-reverse' : ''}`;
 
-                // Format: User gets plain text, Model gets Markdown parsing
-                const formatted = isUser
-                    ? escapeHtml(text).replace(/\n/g, '<br>')
-                    : marked.parse(text)
+                let formatted;
+                if (isUser) {
+                    formatted = escapeHtml(text).replace(/\n/g, '<br>');
+                } else {
+                    // Custom renderer to add referrerpolicy to images to prevent ORB errors
+                    const renderer = new marked.Renderer();
+                    const originalImageRenderer = renderer.image;
+                    renderer.image = (href, title, text) => {
+                        const html = originalImageRenderer.call(renderer, href, title, text);
+                        return html.replace(/^<img/, '<img referrerpolicy="no-referrer"');
+                    };
+                    formatted = marked.parse(text, { renderer });
+                }
 
                 div.innerHTML = `
                 <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0
