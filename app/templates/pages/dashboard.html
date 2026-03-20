@@ -5,7 +5,7 @@
     <div class="flex h-screen bg-gray-50 overflow-hidden font-sans" id="app">
         <!-- Sidebar -->
         <aside id="sidebar"
-            class="bg-white border-r border-gray-200 flex flex-col z-20 flex-shrink-0 overflow-hidden transition-all duration-300"
+            class="fixed inset-y-0 left-0 lg:relative bg-white border-r border-gray-200 flex flex-col z-40 flex-shrink-0 overflow-hidden transition-all duration-300 -translate-x-full lg:translate-x-0 w-[280px] lg:w-[280px]"
             style="width: 280px;">
 
             <!-- Logo -->
@@ -67,6 +67,8 @@
 
         <!-- Main content -->
         <div class="flex-1 flex flex-col h-full relative w-full min-w-0">
+            <!-- Sidebar Backdrop (Mobile only) -->
+            <div id="sidebar-backdrop" class="fixed inset-0 bg-black/20 backdrop-blur-sm z-30 hidden lg:hidden"></div>
 
             <!-- Header -->
             <header
@@ -93,9 +95,8 @@
 
                     <!-- Ingredient Tags -->
                     <div id="ingredient-tags" class="flex flex-wrap gap-2 mb-3 min-h-[32px] items-center">
-                        <span class="text-sm text-gray-400 flex items-center h-8" id="tags-hint">
-                            Tip: Type <span class="font-mono mx-1 text-primary">+Tomato</span> and press Enter to add
-                            ingredient tags
+                        <span class="text-[11px] md:text-sm text-gray-400 flex items-center h-8" id="tags-hint">
+                            Tip: Type <span class="font-mono mx-1 text-primary">+Tomato</span> to add tags
                         </span>
                     </div>
 
@@ -129,8 +130,8 @@
                             </div>
                         </div>
 
-                        <textarea id="chat-input" placeholder="Type ingredients, ask for a recipe, or search..."
-                            class="flex-1 max-h-32 min-h-[44px] bg-transparent border-none focus:ring-0 resize-none py-3 px-2 outline-none text-gray-700 text-sm leading-relaxed"
+                        <textarea id="chat-input" placeholder="What’s in your kitchen?"
+                            class="flex-1 max-h-32 min-h-[44px] bg-transparent border-none focus:ring-0 resize-none py-3 px-1 outline-none text-gray-700 text-sm leading-relaxed overflow-hidden"
                             rows="1"></textarea>
 
                         <button type="submit" id="btn-send"
@@ -343,17 +344,75 @@
             });
 
             // Sidebar Toggle with GSAP animation
+            const backdrop = document.getElementById('sidebar-backdrop');
+            
+            // Initial state based on screen size
+            function updateSidebarState() {
+                const isMobile = window.innerWidth < 1024;
+                if (isMobile) {
+                    sidebarOpen = false;
+                    sidebar.style.transform = 'translateX(-100%)';
+                    if (backdrop) backdrop.classList.add('hidden');
+                } else {
+                    sidebarOpen = true;
+                    sidebar.style.transform = 'translateX(0)';
+                    sidebar.style.width = '280px';
+                }
+            }
+
+            // Run on load
+            updateSidebarState();
+
             if (btnToggle) {
                 btnToggle.addEventListener('click', () => {
+                    const isMobile = window.innerWidth < 1024;
                     sidebarOpen = !sidebarOpen;
-                    gsap.to(sidebar, {
-                        width: sidebarOpen ? 280 : 0,
-                        opacity: sidebarOpen ? 1 : 0,
-                        duration: 0.3,
-                        ease: 'power2.inOut'
-                    });
+
+                    if (isMobile) {
+                        // Mobile: Slide in/out
+                        gsap.to(sidebar, {
+                            x: sidebarOpen ? 0 : '-100%',
+                            duration: 0.3,
+                            ease: 'power2.out'
+                        });
+                        if (backdrop) {
+                            if (sidebarOpen) {
+                                backdrop.classList.remove('hidden');
+                                gsap.fromTo(backdrop, { opacity: 0 }, { opacity: 1, duration: 0.3 });
+                            } else {
+                                gsap.to(backdrop, { opacity: 0, duration: 0.3, onComplete: () => backdrop.classList.add('hidden') });
+                            }
+                        }
+                    } else {
+                        // Desktop: Expand/Collapse
+                        gsap.to(sidebar, {
+                            width: sidebarOpen ? 280 : 0,
+                            opacity: sidebarOpen ? 1 : 0,
+                            duration: 0.3,
+                            ease: 'power2.inOut'
+                        });
+                    }
                 });
             }
+
+            if (backdrop) {
+                backdrop.addEventListener('click', () => {
+                    if (sidebarOpen) {
+                        sidebarOpen = false;
+                        gsap.to(sidebar, { x: '-100%', duration: 0.3, ease: 'power2.in' });
+                        gsap.to(backdrop, { opacity: 0, duration: 0.3, onComplete: () => backdrop.classList.add('hidden') });
+                    }
+                });
+            }
+
+            // Close sidebar on mobile when window is resized
+            window.addEventListener('resize', () => {
+                const isMobile = window.innerWidth < 1024;
+                if (isMobile && sidebarOpen && sidebar.style.width !== '0px') {
+                    // Force close if switching to mobile and sidebar was "desktop open"
+                    updateSidebarState();
+                }
+            });
 
             // Auto-resize textarea as user types
             if (chatInput) {
