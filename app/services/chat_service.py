@@ -4,6 +4,7 @@ from flask import current_app
 from app import db
 from app.models.chat import Chat
 from app.models.message import Message
+from app.services.mealdb_service import MealDbService
 
 class ChatService:
     
@@ -18,12 +19,20 @@ class ChatService:
     
     @staticmethod
     def _get_model():
-        """Initialize and return the Gemini GenerativeModel"""
+        """Initialize and return the Gemini GenerativeModel with Tools"""
         genai.configure(api_key=current_app.config['GEMINI_API_KEY'])
+
+        # Register tools (Function Calling)
+        tools = [
+            MealDbService.search_by_ingredient,
+            MealDbService.get_recipe_details,
+            MealDbService.search_by_name
+        ]
 
         return genai.GenerativeModel(
             model_name="gemini-2.5-flash-lite",
-            system_instruction=ChatService._load_system_prompt()
+            system_instruction=ChatService._load_system_prompt(),
+            tools=tools
         )
     
     @staticmethod
@@ -86,9 +95,9 @@ class ChatService:
 
         db.session.add(user_msg)
 
-        # Call Gemini
+        # Call Gemini with automatic tool execution (enable_automatic_function_calling=True)
         model = ChatService._get_model()
-        chat_session = model.start_chat(history=history)
+        chat_session = model.start_chat(history=history, enable_automatic_function_calling=True)
         response = chat_session.send_message(user_input)
         ai_reply = response.text
 

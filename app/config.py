@@ -30,3 +30,6 @@ class Config:
 
     # Gemini
     GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+
+    # MealDB
+    MEALDB_BASE_URL = os.getenv('MEALDB_BASE_URL', 'https://www.themealdb.com/api/json/v1/1')

@@ -102,11 +102,32 @@
                     <!-- Input Form -->
                     <form id="chat-form"
                         class="relative flex items-end gap-2 bg-gray-50 border border-gray-200 rounded-2xl p-2 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/20 transition-all">
-                        <button type="button" id="btn-add-ingredient"
-                            class="p-3 text-gray-400 hover:text-primary transition-colors flex-shrink-0"
-                            title="Add ingredient">
-                            <i data-lucide="plus" class="w-6 h-6"></i>
-                        </button>
+                        
+                        <div class="relative flex-shrink-0">
+                            <button type="button" id="btn-add-ingredient"
+                                class="p-3 text-gray-400 hover:text-primary transition-colors"
+                                title="Add ingredient">
+                                <i data-lucide="plus" class="w-6 h-6"></i>
+                            </button>
+
+                            <!-- Ingredient Search Popup -->
+                            <div id="ingredient-popup" class="hidden absolute bottom-full left-0 mb-4 w-72 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 overflow-hidden">
+                                <div class="p-4 border-b border-gray-100 bg-gray-50/50">
+                                    <div class="relative">
+                                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                                        <input type="text" id="ingredient-search" placeholder="Search 600+ ingredients..." 
+                                            class="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
+                                    </div>
+                                </div>
+                                <div id="ingredient-list" class="max-h-[400px] overflow-y-auto p-2 space-y-0.5 custom-scrollbar">
+                                    <!-- Loaded via API -->
+                                    <div class="flex flex-col items-center justify-center py-12 text-gray-400">
+                                        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mb-3"></div>
+                                        <p class="text-xs">Loading ingredients...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                         <textarea id="chat-input" placeholder="Type ingredients, ask for a recipe, or search..."
                             class="flex-1 max-h-32 min-h-[44px] bg-transparent border-none focus:ring-0 resize-none py-3 px-2 outline-none text-gray-700 text-sm leading-relaxed"
@@ -140,6 +161,142 @@
             const btnNewChat = document.getElementById('btn-new-chat');
             const btnToggle = document.getElementById('btn-toggle-sidebar');
             const sidebar = document.getElementById('sidebar');
+
+            // Add custom scrollbar style for ingredient list
+            const scrollStyle = document.createElement('style');
+            scrollStyle.innerHTML = `
+                #ingredient-list::-webkit-scrollbar { width: 5px; }
+                #ingredient-list::-webkit-scrollbar-track { background: transparent; }
+                #ingredient-list::-webkit-scrollbar-thumb { background: #f1f1f1; border-radius: 10px; }
+                #ingredient-list::-webkit-scrollbar-thumb:hover { background: #e5e7eb; }
+            `;
+            document.head.appendChild(scrollStyle);
+
+            // Ingredient Popup Logic
+            const btnAddIngredient = document.getElementById('btn-add-ingredient');
+            const ingredientPopup = document.getElementById('ingredient-popup');
+            const ingredientSearch = document.getElementById('ingredient-search');
+            const ingredientList = document.getElementById('ingredient-list');
+            let allIngredients = [];
+
+            async function fetchIngredients() {
+                try {
+                    // Fetching from a more comprehensive list if possible, or sticking to TheMealDB but with a fallback
+                    const res = await fetch('https://www.themealdb.com/api/json/v1/1/list.php?i=list');
+                    const data = await res.json();
+                    
+                    // TheMealDB has ~600, let's ensure we have a good base
+                    allIngredients = data.meals.map(m => m.strIngredient).sort();
+                    
+                    // Fallback: Ensure very common ones are always there if not in the API
+                    const commons = ['Tomato', 'Garlic', 'Onion', 'Salt', 'Pepper', 'Olive Oil', 'Chicken', 'Beef', 'Pork', 'Butter'];
+                    commons.forEach(c => {
+                        if (!allIngredients.find(i => i.toLowerCase() === c.toLowerCase())) {
+                            allIngredients.push(c);
+                        }
+                    });
+                    allIngredients.sort();
+                    
+                    renderIngredientList(allIngredients);
+                } catch (err) {
+                    console.error('Failed to fetch ingredients:', err);
+                    ingredientList.innerHTML = '<p class="text-xs text-center text-red-500 py-4">Failed to load ingredients. You can still type and add them!</p>';
+                }
+            }
+
+            function renderIngredientList(list, query = '') {
+                ingredientList.innerHTML = '';
+                
+                // 1. Add "Add Custom" option if the user has typed something
+                if (query.trim()) {
+                    const customBtn = document.createElement('button');
+                    customBtn.type = 'button';
+                    customBtn.className = 'w-full text-left px-3 py-3 rounded-xl text-sm text-primary bg-primary/5 hover:bg-primary/10 transition-all flex items-center justify-between group font-semibold border border-primary/20 mb-3';
+                    customBtn.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+                                <i data-lucide="plus" class="w-4 h-4"></i>
+                            </div>
+                            <span>Add "${query}"</span>
+                        </div>
+                        <span class="text-[10px] bg-primary/20 px-2 py-0.5 rounded text-primary uppercase font-bold">Custom</span>
+                    `;
+                    customBtn.onclick = () => {
+                        addIngredient(query);
+                        closeIngredientPopup();
+                    };
+                    ingredientList.appendChild(customBtn);
+                    lucide.createIcons();
+                }
+
+                if (list.length === 0 && !query.trim()) {
+                    ingredientList.innerHTML = `
+                        <div class="flex flex-col items-center justify-center py-12 text-gray-400">
+                            <i data-lucide="search-x" class="w-8 h-8 mb-3 opacity-50"></i>
+                            <p class="text-xs text-center px-6 leading-relaxed">No matching ingredients found.<br>Try typing to add a custom one!</p>
+                        </div>
+                    `;
+                    lucide.createIcons();
+                    return;
+                }
+
+                // 2. Show all matching results (No limit!)
+                list.forEach(name => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'w-full text-left px-4 py-2.5 rounded-xl text-sm text-gray-700 hover:bg-gray-50 hover:text-primary transition-all flex items-center justify-between group';
+                    btn.innerHTML = `
+                        <span>${name}</span>
+                        <div class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <i data-lucide="plus" class="w-3.5 h-3.5 text-primary"></i>
+                        </div>
+                    `;
+                    btn.onclick = () => {
+                        addIngredient(name);
+                        closeIngredientPopup();
+                    };
+                    ingredientList.appendChild(btn);
+                });
+                lucide.createIcons();
+            }
+
+            if (btnAddIngredient) {
+                btnAddIngredient.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isHidden = ingredientPopup.classList.contains('hidden');
+                    if (isHidden) {
+                        ingredientPopup.classList.remove('hidden');
+                        gsap.fromTo(ingredientPopup, 
+                            { opacity: 0, y: 10, scale: 0.95 },
+                            { opacity: 1, y: 0, scale: 1, duration: 0.2, ease: 'back.out(1.2)' }
+                        );
+                        if (allIngredients.length === 0) fetchIngredients();
+                        setTimeout(() => ingredientSearch.focus(), 100);
+                    } else {
+                        closeIngredientPopup();
+                    }
+                });
+            }
+
+            function closeIngredientPopup() {
+                if (ingredientPopup && !ingredientPopup.classList.contains('hidden')) {
+                    gsap.to(ingredientPopup, {
+                        opacity: 0, y: 10, scale: 0.95, duration: 0.15, onComplete: () => {
+                            ingredientPopup.classList.add('hidden');
+                            ingredientSearch.value = '';
+                            if (allIngredients.length > 0) renderIngredientList(allIngredients); // Reset list
+                        }
+                    });
+                }
+            }
+
+            if (ingredientSearch) {
+                ingredientSearch.addEventListener('input', (e) => {
+                    const query = e.target.value.toLowerCase();
+                    const filtered = allIngredients.filter(i => i.toLowerCase().includes(query));
+                    renderIngredientList(filtered, e.target.value);
+                });
+            }
 
             // User Dropdown Logic
             const userMenuButton = document.getElementById('user-menu-button');
@@ -179,6 +336,9 @@
             document.addEventListener('click', (e) => {
                 if (userDropdown && !userDropdown.contains(e.target) && !userMenuButton.contains(e.target)) {
                     closeUserDropdown();
+                }
+                if (ingredientPopup && !ingredientPopup.contains(e.target) && !btnAddIngredient.contains(e.target)) {
+                    closeIngredientPopup();
                 }
             });
 
