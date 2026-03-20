@@ -57,52 +57,114 @@
 
         <main class="flex-grow">
             <!-- Hero section -->
-            <section class="min-h-screen flex items-center justify-center px-6 py-20 bg-white overflow-hidden">
-                <div class="container mx-auto max-w-6xl grid md:grid-cols-2 gap-12 items-center">
+            <section id="hero-section" class="min-h-screen flex items-center justify-center px-6 py-20 bg-stone-50 overflow-hidden relative">
+                <!-- Background glow -->
+                <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[120px] pointer-events-none"></div>
+                <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-[120px] pointer-events-none"></div>
 
+                <!-- Background Floating Emojis -->
+                <div class="absolute top-[15%] left-[10%] text-4xl md:text-5xl rotate-12 animate-float opacity-60 cursor-default select-none z-0">🥗</div>
+                <div class="absolute top-[20%] right-[45%] text-5xl md:text-6xl -rotate-12 animate-float-delayed opacity-40 cursor-default select-none z-0">🥒</div>
+                <div class="absolute bottom-[20%] left-[8%] text-5xl md:text-6xl rotate-45 animate-float opacity-50 cursor-default select-none z-0">🥑</div>
+                <div class="absolute top-[10%] right-[10%] text-6xl md:text-7xl -rotate-6 animate-float-delayed opacity-60 cursor-default select-none z-0">🍅</div>
+                <div class="absolute bottom-[15%] right-[40%] text-4xl md:text-5xl rotate-12 animate-float opacity-40 cursor-default select-none z-0">🥕</div>
+                <div class="absolute bottom-[10%] right-[10%] text-5xl md:text-6xl -rotate-12 animate-float-delayed opacity-50 cursor-default select-none z-0">🍋</div>
+                <div class="absolute top-[40%] left-[2%] text-4xl md:text-5xl rotate-12 animate-float opacity-50 cursor-default select-none z-0">🌶️</div>
+
+                <div class="container mx-auto max-w-6xl grid md:grid-cols-2 gap-12 items-center relative z-10">
+                    <!-- Left Content -->
                     <div id="hero-content" class="space-y-6 text-center md:text-left">
-                        <h1 class="text-5xl md:text-6xl font-bold leading-tight text-gray-900">
+                        <h1 class="text-5xl md:text-6xl font-bold leading-tight text-stone-900">
                             Discover Your Next <span class="text-primary">Favorite Meal</span>
                         </h1>
-                        <p class="text-lg md:text-xl text-gray-600 max-w-lg mx-auto md:mx-0">
+                        <p class="text-lg md:text-xl text-stone-600 max-w-lg mx-auto md:mx-0">
                             Input your ingredients and Dishcovery suggests delicious dishes for you.
                         </p>
                         {% if current_user.is_authenticated %}
                             <a href="{{ url_for('dashboard') }}"
-                                class="inline-block bg-primary hover:bg-primary-hover text-white font-semibold py-4 px-8 rounded-full transition-colors duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                                class="inline-block bg-primary hover:bg-primary-hover text-white font-semibold py-4 px-8 rounded-full transition-colors duration-300 shadow-lg hover:shadow-primary/25 transform hover:-translate-y-1">
                                 Go to Dashboard
                             </a>
                         {% else %}
                             <a href="{{ url_for('login') }}"
-                                class="inline-block bg-primary hover:bg-primary-hover text-white font-semibold py-4 px-8 rounded-full transition-colors duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                                class="inline-block bg-primary hover:bg-primary-hover text-white font-semibold py-4 px-8 rounded-full transition-colors duration-300 shadow-lg hover:shadow-primary/25 transform hover:-translate-y-1">
                                 Try Dishcovery
                             </a>
                         {% endif %}
                     </div>
 
-                    <div id="hero-image"
-                        class="relative w-full aspect-square md:aspect-[4/3] bg-gray-100 rounded-3xl border-2 border-dashed border-gray-300 flex items-center justify-center group hover:border-secondary transition-colors duration-300">
-                        <div class="text-center p-8">
-                            <div
-                                class="w-20 h-20 bg-gray-200 rounded-full mx-auto mb-4 flex items-center justify-center group-hover:bg-secondary/20 transition-colors duration-300">
-                                <svg xmlns="http://www.w3.org/2000/svg"
-                                    class="h-10 w-10 text-gray-400 group-hover:text-secondary" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                                </svg>
-                            </div>
-                            <h3
-                                class="text-xl font-semibold text-gray-500 group-hover:text-secondary transition-colors">
-                                AI Chat UI Placeholder</h3>
-                            <p class="text-sm text-gray-400 mt-2">Interactive food discovery interface</p>
-                        </div>
-
-                        <div class="absolute -top-6 -right-6 w-24 h-24 bg-secondary/10 rounded-full blur-xl"></div>
-                        <div class="absolute -bottom-6 -left-6 w-32 h-32 bg-primary/10 rounded-full blur-xl"></div>
+                    <!-- Right 3D Element / Image -->
+                    <div id="hero-image" class="hidden md:flex relative w-full aspect-square md:aspect-[4/3] items-center justify-center">
+                        <!-- Background glow -->
+                        <div class="absolute w-3/4 h-3/4 bg-gradient-to-tr from-primary/10 to-secondary/10 rounded-full blur-3xl"></div>
+                        <img
+                            src="{{ url_for('static', filename='img/hero-food.png') }}"
+                            alt="Delicious Chicken Salad Bowl"
+                            class="relative z-10 w-full h-auto object-contain drop-shadow-2xl"
+                        />
                     </div>
                 </div>
             </section>
+
+            <!-- Food Marquee -->
+            <div class="w-full bg-stone-50 py-20 overflow-hidden relative flex items-center group">
+                <!-- Gradient masks for smooth fade on edges -->
+                <div class="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-stone-50 to-transparent z-10 pointer-events-none"></div>
+                <div class="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-stone-50 to-transparent z-10 pointer-events-none"></div>
+
+                <div class="flex w-max animate-marquee gap-8 px-4 group-hover:[animation-play-state:paused]">
+                    <!-- Original items -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer flex-shrink-0 transform -rotate-2 hover:rotate-0 hover:scale-105 hover:z-10">
+                        <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=400&h=600" alt="Delicious food" class="w-56 h-72 md:w-72 md:h-96 object-cover" referrerPolicy="no-referrer" />
+                    </div>
+                    <div class="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer flex-shrink-0 transform rotate-2 hover:rotate-0 hover:scale-105 hover:z-10">
+                        <img src="https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&q=80&w=400&h=600" alt="Delicious food" class="w-56 h-72 md:w-72 md:h-96 object-cover" referrerPolicy="no-referrer" />
+                    </div>
+                    <div class="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer flex-shrink-0 transform -rotate-3 hover:rotate-0 hover:scale-105 hover:z-10">
+                        <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=400&h=600" alt="Delicious food" class="w-56 h-72 md:w-72 md:h-96 object-cover" referrerPolicy="no-referrer" />
+                    </div>
+                    <div class="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer flex-shrink-0 transform rotate-1 hover:rotate-0 hover:scale-105 hover:z-10">
+                        <img src="https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&q=80&w=400&h=600" alt="Delicious food" class="w-56 h-72 md:w-72 md:h-96 object-cover" referrerPolicy="no-referrer" />
+                    </div>
+                    <div class="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer flex-shrink-0 transform -rotate-1 hover:rotate-0 hover:scale-105 hover:z-10">
+                        <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&q=80&w=400&h=600" alt="Delicious food" class="w-56 h-72 md:w-72 md:h-96 object-cover" referrerPolicy="no-referrer" />
+                    </div>
+                    <div class="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer flex-shrink-0 transform rotate-3 hover:rotate-0 hover:scale-105 hover:z-10">
+                        <img src="https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&q=80&w=400&h=600" alt="Delicious food" class="w-56 h-72 md:w-72 md:h-96 object-cover" referrerPolicy="no-referrer" />
+                    </div>
+                    <div class="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer flex-shrink-0 transform -rotate-2 hover:rotate-0 hover:scale-105 hover:z-10">
+                        <img src="https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&q=80&w=400&h=600" alt="Delicious food" class="w-56 h-72 md:w-72 md:h-96 object-cover" referrerPolicy="no-referrer" />
+                    </div>
+                    <div class="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer flex-shrink-0 transform rotate-2 hover:rotate-0 hover:scale-105 hover:z-10">
+                        <img src="https://images.unsplash.com/photo-1528207776546-365bb710ee93?auto=format&fit=crop&q=80&w=400&h=600" alt="Delicious food" class="w-56 h-72 md:w-72 md:h-96 object-cover" referrerPolicy="no-referrer" />
+                    </div>
+                    <!-- Duplicated for seamless loop -->
+                    <div class="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer flex-shrink-0 transform -rotate-2 hover:rotate-0 hover:scale-105 hover:z-10">
+                        <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=400&h=600" alt="Delicious food" class="w-56 h-72 md:w-72 md:h-96 object-cover" referrerPolicy="no-referrer" />
+                    </div>
+                    <div class="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer flex-shrink-0 transform rotate-2 hover:rotate-0 hover:scale-105 hover:z-10">
+                        <img src="https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&q=80&w=400&h=600" alt="Delicious food" class="w-56 h-72 md:w-72 md:h-96 object-cover" referrerPolicy="no-referrer" />
+                    </div>
+                    <div class="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer flex-shrink-0 transform -rotate-3 hover:rotate-0 hover:scale-105 hover:z-10">
+                        <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=400&h=600" alt="Delicious food" class="w-56 h-72 md:w-72 md:h-96 object-cover" referrerPolicy="no-referrer" />
+                    </div>
+                    <div class="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer flex-shrink-0 transform rotate-1 hover:rotate-0 hover:scale-105 hover:z-10">
+                        <img src="https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&q=80&w=400&h=600" alt="Delicious food" class="w-56 h-72 md:w-72 md:h-96 object-cover" referrerPolicy="no-referrer" />
+                    </div>
+                    <div class="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer flex-shrink-0 transform -rotate-1 hover:rotate-0 hover:scale-105 hover:z-10">
+                        <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&q=80&w=400&h=600" alt="Delicious food" class="w-56 h-72 md:w-72 md:h-96 object-cover" referrerPolicy="no-referrer" />
+                    </div>
+                    <div class="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer flex-shrink-0 transform rotate-3 hover:rotate-0 hover:scale-105 hover:z-10">
+                        <img src="https://images.unsplash.com/photo-1612929633738-8fe44f7ec841?auto=format&fit=crop&q=80&w=400&h=600" alt="Delicious food" class="w-56 h-72 md:w-72 md:h-96 object-cover" referrerPolicy="no-referrer" />
+                    </div>
+                    <div class="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer flex-shrink-0 transform -rotate-2 hover:rotate-0 hover:scale-105 hover:z-10">
+                        <img src="https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&q=80&w=400&h=600" alt="Delicious food" class="w-56 h-72 md:w-72 md:h-96 object-cover" referrerPolicy="no-referrer" />
+                    </div>
+                    <div class="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer flex-shrink-0 transform rotate-2 hover:rotate-0 hover:scale-105 hover:z-10">
+                        <img src="https://images.unsplash.com/photo-1528207776546-365bb710ee93?auto=format&fit=crop&q=80&w=400&h=600" alt="Delicious food" class="w-56 h-72 md:w-72 md:h-96 object-cover" referrerPolicy="no-referrer" />
+                    </div>
+                </div>
+            </div>
 
             <!-- Feature section -->
             <div id="features">

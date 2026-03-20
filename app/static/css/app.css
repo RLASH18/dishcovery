@@ -28,8 +28,37 @@ html {
 
 body {
     font-family: 'Poppins', 'Montserrat', ui-sans-serif, system-ui, sans-serif;
-    color: #1A1A1A;
-    background-color: #FFFFFF;
+    color: #1c1917;
+    background-color: #fafaf9;
+}
+
+/* Marquee animation */
+@keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+/* Float animation */
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotate(var(--tw-rotate, 0deg)); }
+    50% { transform: translateY(-20px) rotate(var(--tw-rotate, 0deg)); }
+}
+
+.animate-marquee {
+    animation: marquee 40s linear infinite;
+}
+
+.animate-float {
+    animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+    animation: float 7s ease-in-out infinite;
+    animation-delay: 2s;
+}
+
+.animate-marquee:hover {
+    animation-play-state: paused;
 }
 
 /* Prose reset inside AI chat bubbles */
