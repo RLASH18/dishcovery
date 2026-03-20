@@ -1,5 +1,6 @@
 import secrets
-from flask import redirect, url_for, flash, session
+from flask import redirect, url_for, flash
+from flask_login import login_user
 from werkzeug.security import generate_password_hash
 from app import db, oauth
 from app.models.user import User
@@ -69,6 +70,7 @@ class SocialController:
             
             flash(f"Welcome back, {user.name}!", "success")
         
-        session["user_id"] = user.id
+        # Use Flask-Login to log in the user
+        login_user(user)
 
         return redirect(url_for("dashboard"))
