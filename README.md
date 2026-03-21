@@ -1,7 +1,7 @@
 <div align="center">
     <br />
-    <img src="app/static/img/logo.png" width="40" height="40" alt="Dishcovery Logo" style="vertical-align: middle;">
-    <h1 style="display: inline; vertical-align: middle; margin-left: 10px; color: #84cc16; border: none;">Dishcovery</h1>
+    <img src="app/static/img/logo.png" height="60" alt="Dishcovery Logo">
+    <br />
     <p>Your AI-powered culinary companion for discovering your next favorite meal.</p>
 </div>
 
@@ -22,31 +22,22 @@ Don't know what to type? Browse through over 600+ ingredients and select what's 
 
 ## 🛠️ Tech Stack
 
-<div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-  <a href="https://flask.palletsprojects.com/" target="_blank" rel="noreferrer">
-    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/flask/flask-original.svg" 
-         alt="Flask" width="40" height="40" 
-         style="background: white; border-radius: 8px; padding: 4px; object-fit: contain;"/>
-  </a>
-  <a href="https://www.python.org" target="_blank" rel="noreferrer">
-    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" 
-         alt="Python" width="40" height="40"/>
-  </a>
-  <a href="https://www.mysql.com/" target="_blank" rel="noreferrer">
-    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original-wordmark.svg" 
-         alt="MySQL" width="40" height="40"/>
-  </a>
-  <a href="https://tailwindcss.com/" target="_blank" rel="noreferrer">
-    <img src="https://www.vectorlogo.zone/logos/tailwindcss/tailwindcss-icon.svg" 
-         alt="Tailwind CSS" width="40" height="40"/>
-  </a>
-  <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank" rel="noreferrer">
-    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" 
-         alt="JavaScript" width="40" height="40"/>
-  </a>
-  <a href="https://greensock.com/gsap/" target="_blank" rel="noreferrer">
-    <img src="https://cdn.worldvectorlogo.com/logos/gsap-greensock.svg" 
-         alt="GSAP" width="40" height="40"/>
+<div style="display: flex; align-items: center; flex-wrap: wrap; gap: 0;">
+  <a href="https://flask.palletsprojects.com/" target="_blank" rel="noreferrer" style="text-decoration: none;">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://cdn.simpleicons.org/flask/ffffff">
+      <img src="https://cdn.simpleicons.org/flask/000000" alt="Flask" width="40" height="40" style="border-radius: 8px; object-fit: contain;" />
+    </picture>
+  </a><a href="https://www.python.org" target="_blank" rel="noreferrer" style="text-decoration: none;">
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python" width="40" height="40" />
+  </a><a href="https://www.mysql.com/" target="_blank" rel="noreferrer" style="text-decoration: none;">
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original-wordmark.svg" alt="MySQL" width="40" height="40" />
+  </a><a href="https://tailwindcss.com/" target="_blank" rel="noreferrer" style="text-decoration: none;">
+    <img src="https://www.vectorlogo.zone/logos/tailwindcss/tailwindcss-icon.svg" alt="Tailwind CSS" width="40" height="40" />
+  </a><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank" rel="noreferrer" style="text-decoration: none;">
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" alt="JavaScript" width="40" height="40" />
+  </a><a href="https://greensock.com/gsap/" target="_blank" rel="noreferrer" style="text-decoration: none;">
+    <img src="https://cdn.worldvectorlogo.com/logos/gsap-greensock.svg" alt="GSAP" width="40" height="40" />
   </a>
 </div>
 
