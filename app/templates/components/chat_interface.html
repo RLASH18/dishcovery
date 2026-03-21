@@ -1,0 +1,487 @@
+﻿<!-- Message History -->
+<div class="flex-1 overflow-y-auto p-4 md:p-6" id="chat-area">
+    <div class="max-w-3xl mx-auto space-y-6" id="messages-container">
+        <!-- Injected -->
+    </div>
+    <div id="messages-end" class="h-4"></div>
+</div>
+
+<!-- Message Composer -->
+<div class="bg-white border-t border-gray-200 p-4 md:p-6 flex-shrink-0">
+    <div class="max-w-3xl mx-auto">
+        <!-- Mode Toggle -->
+        <div class="flex justify-center mb-4">
+            <div class="bg-gray-100 p-1 rounded-xl inline-flex">
+                <button id="btn-mode-chat"
+                    class="px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-white shadow-sm text-gray-900">
+                    Chat Mode
+                </button>
+                <button id="btn-mode-ingredients"
+                    class="px-4 py-2 rounded-lg text-sm font-medium transition-colors text-gray-500 hover:text-gray-700">
+                    Ingredients Mode
+                </button>
+            </div>
+        </div>
+
+        <!-- Chat Mode -->
+        <div id="chat-mode-container">
+            <!-- Chat Form -->
+            <form id="chat-form"
+                class="relative flex items-end gap-2 bg-gray-50 border border-gray-200 rounded-2xl p-2 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/20 transition-all">
+                <div class="relative flex-shrink-0">
+                    <button type="button" id="btn-upload-image"
+                        class="p-3 text-gray-400 hover:text-primary transition-colors flex-shrink-0 relative overflow-hidden"
+                        title="Upload image">
+                        <i data-lucide="plus" class="w-6 h-6"></i>
+                        <input type="file" id="image-upload" class="absolute inset-0 opacity-0 cursor-pointer" accept="image/*">
+                    </button>
+                </div>
+
+                <textarea id="chat-input" placeholder="What&rsquo;s in your kitchen?"
+                    class="flex-1 max-h-32 min-h-[44px] bg-transparent border-none focus:ring-0 resize-none py-3 px-1 outline-none text-gray-700 text-sm leading-relaxed overflow-hidden"
+                    rows="1"></textarea>
+
+                <button type="submit" id="btn-send"
+                    class="p-3 bg-primary text-white rounded-xl hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex-shrink-0 shadow-sm">
+                    <i data-lucide="send" class="w-5 h-5"></i>
+                </button>
+            </form>
+        </div>
+
+        <!-- Ingredients Mode -->
+        <div id="ingredients-mode-container" class="hidden">
+            <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-semibold text-gray-900">Select Ingredients</h3>
+                    <button id="btn-find-recipes"
+                        class="px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2 shadow-sm">
+                        Find Recipes <i data-lucide="send" class="w-4 h-4"></i>
+                    </button>
+                </div>
+
+                <!-- Selected Tags -->
+                <div id="selected-ingredients-tags" class="flex flex-wrap gap-2 mb-4 min-h-[32px] items-center border-b border-gray-200 pb-4">
+                    <!-- Injected -->
+                </div>
+
+                <!-- Ingredient Search -->
+                <div class="relative mb-6">
+                    <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                    <input type="text" id="ingredient-search-mode" placeholder="Search 600+ ingredients..."
+                        class="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
+                </div>
+
+                <div id="available-ingredients-list" class="max-h-64 overflow-y-auto pr-2 space-y-2 custom-scrollbar">
+                    <!-- Injected -->
+                    <div class="flex flex-col items-center justify-center py-12 text-gray-400">
+                        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mb-3"></div>
+                        <p class="text-xs">Loading ingredients...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const app = window.dashboardChatApp;
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const messagesEl = document.getElementById('messages-container');
+        const btnModeChat = document.getElementById('btn-mode-chat');
+        const btnModeIngredients = document.getElementById('btn-mode-ingredients');
+        const chatModeContainer = document.getElementById('chat-mode-container');
+        const ingredientsModeContainer = document.getElementById('ingredients-mode-container');
+        const btnFindRecipes = document.getElementById('btn-find-recipes');
+        const availableIngredientsList = document.getElementById('available-ingredients-list');
+        const selectedIngredientsTags = document.getElementById('selected-ingredients-tags');
+        const ingredientSearchMode = document.getElementById('ingredient-search-mode');
+        const btnUploadImage = document.getElementById('btn-upload-image');
+        const imageUpload = document.getElementById('image-upload');
+
+        const greetingMessage = "Hi there! I'm your Dishcovery chef \u{1F468}\u200D\u{1F373} What ingredients do you have in your kitchen today, or what are you craving?";
+        let allIngredients = [];
+
+        // Stop if required DOM elements are missing
+        if (!app || !chatForm || !chatInput || !messagesEl || !btnModeChat || !btnModeIngredients || !chatModeContainer || !ingredientsModeContainer || !btnFindRecipes || !availableIngredientsList || !selectedIngredientsTags || !ingredientSearchMode) {
+            return;
+        }
+
+        // Switch between Chat and Ingredients mode
+        function switchMode(mode) {
+            app.state.inputMode = mode;
+            
+            if (mode === 'chat') {
+                chatModeContainer.classList.remove('hidden');
+                ingredientsModeContainer.classList.add('hidden');
+                btnModeChat.classList.add('bg-white', 'shadow-sm', 'text-gray-900');
+                btnModeChat.classList.remove('text-gray-500');
+                btnModeIngredients.classList.remove('bg-white', 'shadow-sm', 'text-gray-900');
+                btnModeIngredients.classList.add('text-gray-500');
+                app.state.ingredients = [];
+                renderSelectedTags();
+            } else {
+                chatModeContainer.classList.add('hidden');
+                ingredientsModeContainer.classList.remove('hidden');
+                btnModeIngredients.classList.add('bg-white', 'shadow-sm', 'text-gray-900');
+                btnModeIngredients.classList.remove('text-gray-500');
+                btnModeChat.classList.remove('bg-white', 'shadow-sm', 'text-gray-900');
+                btnModeChat.classList.add('text-gray-500');
+                
+                if (allIngredients.length === 0) {
+                    fetchIngredients();
+                } else {
+                    renderAvailableIngredients(allIngredients);
+                }
+                renderSelectedTags();
+            }
+        }
+
+        // Render the selectable ingredients list from API data
+        function renderAvailableIngredients(list) {
+            availableIngredientsList.innerHTML = '';
+            
+            if (list.length === 0) {
+                availableIngredientsList.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-12 text-gray-400">
+                        <i data-lucide="search-x" class="w-8 h-8 mb-3 opacity-50"></i>
+                        <p class="text-xs">No ingredients found.</p>
+                    </div>`;
+                lucide.createIcons();
+                return;
+            }
+
+            const grid = document.createElement('div');
+            grid.className = 'flex flex-wrap gap-2';
+            
+            list.forEach(item => {
+                const isSelected = app.state.ingredients.includes(item);
+                const btn = document.createElement('button');
+                btn.className = `px-3 py-1.5 rounded-lg text-sm font-medium transition-all border ${
+                    isSelected 
+                    ? 'bg-primary/10 border-primary/30 text-primary shadow-sm' 
+                    : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-stone-50'
+                }`;
+                btn.textContent = item;
+                btn.onclick = () => {
+                    if (app.state.ingredients.includes(item)) {
+                        app.state.ingredients = app.state.ingredients.filter(i => i !== item);
+                    } else {
+                        app.state.ingredients.push(item);
+                    }
+                    renderAvailableIngredients(list);
+                    renderSelectedTags();
+                };
+                grid.appendChild(btn);
+            });
+            
+            availableIngredientsList.appendChild(grid);
+            btnFindRecipes.disabled = app.state.ingredients.length === 0;
+            lucide.createIcons();
+        }
+
+        // Render tags for selected ingredients in Ingredients Mode
+        function renderSelectedTags() {
+            selectedIngredientsTags.innerHTML = '';
+            
+            if (app.state.ingredients.length === 0) {
+                selectedIngredientsTags.innerHTML = '<span class="text-sm text-gray-400 italic">No ingredients selected yet...</span>';
+                return;
+            }
+
+            app.state.ingredients.forEach(ing => {
+                const span = document.createElement('span');
+                span.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary text-sm font-medium rounded-lg border border-primary/20';
+                span.innerHTML = `
+                    ${app.escapeHtml(ing)}
+                    <button type="button" class="hover:bg-primary/20 rounded-full p-0.5 transition-colors remove-selected-ing" data-ing="${app.escapeHtml(ing)}">
+                        <i data-lucide="x" class="w-3 h-3"></i>
+                    </button>`;
+                selectedIngredientsTags.appendChild(span);
+            });
+
+            lucide.createIcons();
+
+            selectedIngredientsTags.querySelectorAll('.remove-selected-ing').forEach(btn => {
+                btn.onclick = () => {
+                    app.state.ingredients = app.state.ingredients.filter(i => i !== btn.dataset.ing);
+                    renderSelectedTags();
+                    renderAvailableIngredients(allIngredients);
+                };
+            });
+        }
+
+        // Fetch the full list of ingredients from TheMealDB API
+        async function fetchIngredients() {
+            try {
+                const res = await fetch('https://www.themealdb.com/api/json/v1/1/list.php?i=list');
+                const data = await res.json();
+                allIngredients = data.meals.map((meal) => meal.strIngredient).sort();
+
+                // Add common pantry staples if missing
+                ['Tomato', 'Garlic', 'Onion', 'Salt', 'Pepper', 'Olive Oil', 'Chicken', 'Beef', 'Pork', 'Butter'].forEach((common) => {
+                    if (!allIngredients.find((ingredient) => ingredient.toLowerCase() === common.toLowerCase())) {
+                        allIngredients.push(common);
+                    }
+                });
+
+                allIngredients.sort();
+                renderAvailableIngredients(allIngredients);
+            } catch (error) {
+                console.error('Failed to fetch ingredients:', error);
+                availableIngredientsList.innerHTML = '<p class="text-xs text-center text-red-500 py-4">Failed to load ingredients. Please try again later.</p>';
+            }
+        }
+
+        // Handle ingredient search in Ingredients Mode
+        if (ingredientSearchMode) {
+            ingredientSearchMode.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                const filtered = allIngredients.filter(i => i.toLowerCase().includes(query));
+                renderAvailableIngredients(filtered);
+            });
+        }
+
+        // Handle image selection with visual feedback
+        if (imageUpload) {
+            imageUpload.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    // Visual feedback for selected file
+                    btnUploadImage.classList.add('text-primary');
+                    btnUploadImage.title = `Selected: ${file.name}`;
+                    console.log('Selected image:', file.name);
+                } else {
+                    btnUploadImage.classList.remove('text-primary');
+                    btnUploadImage.title = 'Upload image';
+                }
+            });
+        }
+
+        // Mode button event listeners
+        btnModeChat.onclick = () => switchMode('chat');
+        btnModeIngredients.onclick = () => switchMode('ingredients');
+
+        // Find recipes button listener
+        btnFindRecipes.onclick = () => {
+            if (app.state.ingredients.length === 0) return;
+            const prompt = `Find recipes using: ${app.state.ingredients.join(', ')}`;
+            
+            // Switch to chat mode (this also clears app.state.ingredients)
+            switchMode('chat');
+            
+            // Send the generated prompt
+            chatInput.value = prompt;
+            chatForm.dispatchEvent(new Event('submit', { bubbles: true }));
+        };
+
+        // Scroll chat container to bottom
+        function scrollToBottom() {
+            document.getElementById('messages-end')?.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Remove the typing indicator bubble
+        function removeTyping(id) {
+            document.getElementById(id)?.remove();
+        }
+
+        // Show a typing indicator bubble
+        function appendTyping() {
+            const id = `typing-${Date.now()}`;
+            const div = document.createElement('div');
+            div.id = id;
+            div.className = 'flex gap-4';
+            div.innerHTML = `
+                <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-secondary/20 text-secondary">
+                    <i data-lucide="chef-hat" class="w-5 h-5"></i>
+                </div>
+                <div class="px-5 py-4 rounded-2xl bg-white border border-gray-100 shadow-sm rounded-tl-sm">
+                    <div class="flex gap-1.5 items-center">
+                        <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0s"></span>
+                        <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.15s"></span>
+                        <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.3s"></span>
+                    </div>
+                </div>`;
+            messagesEl.appendChild(div);
+            lucide.createIcons();
+            gsap.from(div, { opacity: 0, y: 10, duration: 0.25 });
+            scrollToBottom();
+            return id;
+        }
+
+        // Add a message bubble to the UI
+        function appendMessage(role, text, animate = true) {
+            const isUser = role === 'user';
+            const div = document.createElement('div');
+            div.className = `flex gap-4 ${isUser ? 'flex-row-reverse' : ''}`;
+
+            let formatted;
+            if (isUser) {
+                // Escape HTML for user messages
+                formatted = app.escapeHtml(text).replace(/\n/g, '<br>');
+            } else {
+                // Parse markdown for model messages
+                const renderer = new marked.Renderer();
+                const originalImageRenderer = renderer.image;
+
+                // Add referrerpolicy to images
+                renderer.image = (href, title, altText) => {
+                    const html = originalImageRenderer.call(renderer, href, title, altText);
+                    return html.replace(/^<img/, '<img referrerpolicy="no-referrer"');
+                };
+                formatted = marked.parse(text, { renderer });
+            }
+
+            div.innerHTML = `
+                <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${isUser ? 'bg-primary/20 text-primary' : 'bg-secondary/20 text-secondary'}">
+                    <i data-lucide="${isUser ? 'user' : 'chef-hat'}" class="w-5 h-5"></i>
+                </div>
+                <div class="flex flex-col max-w-[80%] ${isUser ? 'items-end' : 'items-start'}">
+                    <div class="px-5 py-3.5 rounded-2xl text-sm leading-relaxed ${isUser ? 'bg-primary text-white rounded-tr-sm' : 'bg-white border border-gray-100 shadow-sm text-gray-800 rounded-tl-sm ai-message'}">
+                        ${formatted}
+                    </div>
+                </div>`;
+
+            messagesEl.appendChild(div);
+            lucide.createIcons();
+
+            // Animate message if requested
+            if (animate) {
+                gsap.from(div, { opacity: 0, y: 12, duration: 0.3, ease: 'power2.out' });
+            }
+        }
+
+        // Load a chat and its message history
+        async function loadChat(chatId) {
+            app.state.currentChatId = chatId;
+            messagesEl.innerHTML = '';
+
+            try {
+                const messages = await app.api.fetchMessages(chatId);
+                messages.forEach((message) => appendMessage(message.role, message.content, false));
+                scrollToBottom();
+                app.emit('chat:list:refresh');
+            } catch (error) {
+                console.error('Failed to load messages:', error);
+            }
+        }
+
+        // Clear the composer input and tags
+        function resetComposer() {
+            app.state.ingredients = [];
+            chatInput.value = '';
+            chatInput.style.height = 'auto';
+        }
+
+        // Show the initial chef greeting
+        function showGreeting() {
+            appendMessage('model', greetingMessage);
+        }
+
+        // Resize input as user types
+        chatInput.addEventListener('input', () => {
+            chatInput.style.height = 'auto';
+            chatInput.style.height = `${Math.min(chatInput.scrollHeight, 128)}px`;
+        });
+
+        // Submit message on Enter (Shift+Enter for newline)
+        chatInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                chatForm.dispatchEvent(new Event('submit', { bubbles: true }));
+            }
+        });
+
+        // Handle message submission
+        chatForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const text = chatInput.value.trim();
+
+            let userText = text;
+            if (!userText) {
+                return;
+            }
+
+            // Create chat if it doesn't exist
+            if (!app.state.currentChatId) {
+                const data = await app.api.createChat();
+                app.state.currentChatId = data.chat_id;
+            }
+
+            appendMessage('user', userText);
+            chatInput.value = '';
+            chatInput.style.height = 'auto';
+            
+            // Reset image upload UI if a file was selected
+            if (imageUpload.files.length > 0) {
+                imageUpload.value = '';
+                btnUploadImage.classList.remove('text-primary');
+                btnUploadImage.title = 'Upload image';
+            }
+            
+            scrollToBottom();
+
+            const typingId = appendTyping();
+
+            try {
+                // Get AI response from backend
+                const data = await app.api.sendMessage(app.state.currentChatId, userText);
+                removeTyping(typingId);
+                appendMessage('model', data.reply);
+                app.emit('chat:list:refresh');
+                scrollToBottom();
+            } catch (error) {
+                removeTyping(typingId);
+                appendMessage('model', '\u26A0\uFE0F Something went wrong. Please try again.');
+                console.error(error);
+            }
+        });
+
+        // Expose public chat methods
+        app.chatInterface = {
+            loadChat,
+            resetComposer,
+            showGreeting,
+            clearMessages: () => {
+                messagesEl.innerHTML = '';
+            },
+        };
+
+        // Listen for chat selection events
+        app.on('chat:selected', async ({ chatId }) => {
+            resetComposer();
+            await loadChat(chatId);
+        });
+
+        // Listen for new chat creation events
+        app.on('chat:created', ({ chatId }) => {
+            messagesEl.innerHTML = '';
+            app.state.currentChatId = chatId;
+            resetComposer();
+            showGreeting();
+        });
+
+        // Listen for chat deletion events
+        app.on('chat:deleted', async ({ wasActive }) => {
+            if (wasActive) {
+                messagesEl.innerHTML = '';
+                resetComposer();
+                const chats = await app.sidebar.loadChatList();
+
+                if (chats.length > 0) {
+                    app.state.currentChatId = chats[0].id;
+                    await loadChat(chats[0].id);
+                } else {
+                    const newChatId = await app.sidebar.createNewChat();
+                    if (newChatId) {
+                        app.state.currentChatId = newChatId;
+                    }
+                }
+            }
+        });
+
+        // Initialize mode on load
+        switchMode(app.state.inputMode || 'chat');
+    });
+</script>

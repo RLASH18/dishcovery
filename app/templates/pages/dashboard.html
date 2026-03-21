@@ -1,4 +1,4 @@
-{% extends "layouts/base.html" %}
+﻿{% extends "layouts/base.html" %}
 {% block title %}Dashboard — Dishcovery{% endblock %}
 
 {% block layout %}
@@ -8,32 +8,18 @@
             class="fixed inset-y-0 left-0 lg:relative bg-white border-r border-gray-200 flex flex-col z-40 flex-shrink-0 overflow-hidden transition-all duration-300 -translate-x-full lg:translate-x-0 w-[280px] lg:w-[280px]"
             style="width: 280px;">
 
-            <!-- Logo -->
-            <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+            <!-- Brand -->
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
                 <a href="/" class="text-2xl font-bold text-primary flex items-center gap-2">
                     <i data-lucide="chef-hat" class="text-primary w-7 h-7"></i>
                     Dishcovery
                 </a>
             </div>
 
-            <!-- New Chat Button -->
-            <div class="p-4">
-                <button id="btn-new-chat"
-                    class="w-full bg-primary/10 text-primary hover:bg-primary hover:text-white font-semibold py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2">
-                    <i data-lucide="plus" class="w-5 h-5"></i>
-                    New Discovery
-                </button>
-            </div>
+            <!-- Chat Sidebar -->
+            {% include "components/chat_sidebar.html" %}
 
-            <!-- Recent Chats -->
-            <div class="flex-1 overflow-y-auto p-4">
-                <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4 px-2">Recent Chats</h3>
-                <div id="chat-list" class="space-y-1">
-                    <!-- Injected by JS -->
-                </div>
-            </div>
-
-            <!-- User Footer -->
+            <!-- User Menu -->
             <div class="p-4 border-t border-gray-100 relative">
                 <div class="flex items-center gap-3 px-2 py-2 cursor-pointer hover:bg-gray-50 rounded-xl transition-colors" id="user-menu-button">
                     <div
@@ -49,7 +35,6 @@
                     <i data-lucide="chevron-up" class="w-4 h-4 text-gray-400 transition-transform" id="user-menu-chevron"></i>
                 </div>
 
-                <!-- Dropdown Menu -->
                 <div id="user-dropdown" class="hidden absolute bottom-[calc(100%-8px)] left-4 right-4 bg-white border border-gray-100 rounded-xl shadow-lg overflow-hidden z-30 mb-2">
                     <a href="#" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                         <i data-lucide="settings" class="w-4 h-4 text-gray-400"></i>
@@ -65,105 +50,100 @@
             </div>
         </aside>
 
-        <!-- Main content -->
+        <!-- Main Content -->
         <div class="flex-1 flex flex-col h-full relative w-full min-w-0">
-            <!-- Sidebar Backdrop (Mobile only) -->
+            <!-- Sidebar Backdrop -->
             <div id="sidebar-backdrop" class="fixed inset-0 bg-black/20 backdrop-blur-sm z-30 hidden lg:hidden"></div>
 
-            <!-- Header -->
             <header
                 class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 md:px-6 flex-shrink-0">
                 <div class="flex items-center gap-4">
                     <button id="btn-toggle-sidebar" class="text-gray-500 hover:text-gray-700 transition-colors">
-                        <i data-lucide="menu" class="w-6 h-6"></i>
+                        <i data-lucide="panel-left" class="w-6 h-6"></i>
                     </button>
                     <h2 class="text-lg font-semibold text-gray-800">Kitchen Assistant</h2>
                 </div>
             </header>
 
-            <!-- Chat Messages Area -->
-            <div class="flex-1 overflow-y-auto p-4 md:p-6" id="chat-area">
-                <div class="max-w-3xl mx-auto space-y-6" id="messages-container">
-                    <!-- Messages injected by JS -->
-                </div>
-                <div id="messages-end" class="h-4"></div>
-            </div>
-
-            <!-- Input Area -->
-            <div class="bg-white border-t border-gray-200 p-4 md:p-6 flex-shrink-0">
-                <div class="max-w-3xl mx-auto">
-
-                    <!-- Ingredient Tags -->
-                    <div id="ingredient-tags" class="flex flex-wrap gap-2 mb-3 min-h-[32px] items-center">
-                        <span class="text-[11px] md:text-sm text-gray-400 flex items-center h-8" id="tags-hint">
-                            Tip: Type <span class="font-mono mx-1 text-primary">+Tomato</span> to add tags
-                        </span>
-                    </div>
-
-                    <!-- Input Form -->
-                    <form id="chat-form"
-                        class="relative flex items-end gap-2 bg-gray-50 border border-gray-200 rounded-2xl p-2 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/20 transition-all">
-                        
-                        <div class="relative flex-shrink-0">
-                            <button type="button" id="btn-add-ingredient"
-                                class="p-3 text-gray-400 hover:text-primary transition-colors"
-                                title="Add ingredient">
-                                <i data-lucide="plus" class="w-6 h-6"></i>
-                            </button>
-
-                            <!-- Ingredient Search Popup -->
-                            <div id="ingredient-popup" class="hidden absolute bottom-full left-0 mb-4 w-72 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 overflow-hidden">
-                                <div class="p-4 border-b border-gray-100 bg-gray-50/50">
-                                    <div class="relative">
-                                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-                                        <input type="text" id="ingredient-search" placeholder="Search 600+ ingredients..." 
-                                            class="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
-                                    </div>
-                                </div>
-                                <div id="ingredient-list" class="max-h-[400px] overflow-y-auto p-2 space-y-0.5 custom-scrollbar">
-                                    <!-- Loaded via API -->
-                                    <div class="flex flex-col items-center justify-center py-12 text-gray-400">
-                                        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mb-3"></div>
-                                        <p class="text-xs">Loading ingredients...</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <textarea id="chat-input" placeholder="What’s in your kitchen?"
-                            class="flex-1 max-h-32 min-h-[44px] bg-transparent border-none focus:ring-0 resize-none py-3 px-1 outline-none text-gray-700 text-sm leading-relaxed overflow-hidden"
-                            rows="1"></textarea>
-
-                        <button type="submit" id="btn-send"
-                            class="p-3 bg-primary text-white rounded-xl hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex-shrink-0 shadow-sm">
-                            <i data-lucide="send" class="w-5 h-5"></i>
-                        </button>
-                    </form>
-
-                </div>
-            </div>
+            <!-- Chat Interface -->
+            {% include "components/chat_interface.html" %}
         </div>
     </div>
 
     <script>
+        // Initialize global app object and internal event bus
+        window.dashboardChatApp = window.dashboardChatApp || (() => {
+            const events = new EventTarget();
+
+            return {
+                // Shared state for the app
+                state: {
+                    currentChatId: null,
+                    ingredients: [],
+                    sidebarOpen: true,
+                    inputMode: 'chat',
+                },
+                // API functions for backend requests
+                api: {
+                    // Fetch recent chats
+                    fetchChats: async () => {
+                        const res = await fetch('/api/chats');
+                        return res.json();
+                    },
+                    // Create a new chat
+                    createChat: async () => {
+                        const res = await fetch('/api/chats', { method: 'POST' });
+                        return res.json();
+                    },
+                    // Delete a chat
+                    deleteChat: async (chatId) => {
+                        const res = await fetch(`/api/chats/${chatId}`, { method: 'DELETE' });
+                        return res.json();
+                    },
+                    // Fetch messages for a chat
+                    fetchMessages: async (chatId) => {
+                        const res = await fetch(`/api/chats/${chatId}/messages`);
+                        return res.json();
+                    },
+                    // Send message and get AI reply
+                    sendMessage: async (chatId, message) => {
+                        const res = await fetch(`/api/chats/${chatId}/messages`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ message }),
+                        });
+                        return res.json();
+                    },
+                },
+                // Trigger a custom event
+                emit: (name, detail = {}) => {
+                    events.dispatchEvent(new CustomEvent(name, { detail }));
+                },
+                // Listen for a custom event
+                on: (name, handler) => {
+                    events.addEventListener(name, (event) => handler(event.detail));
+                },
+                // Helper to prevent XSS
+                escapeHtml: (text) => String(text)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;'),
+            };
+        })();
+    </script>
+
+    <script>
         document.addEventListener('DOMContentLoaded', () => {
-
-            // Application State
-            let currentChatId = null;
-            let ingredients = [];
-            let sidebarOpen = true;
-
-            // DOM Element References
-            const chatForm = document.getElementById('chat-form');
-            const chatInput = document.getElementById('chat-input');
-            const messagesEl = document.getElementById('messages-container');
-            const ingredientTags = document.getElementById('ingredient-tags');
-            const chatList = document.getElementById('chat-list');
-            const btnNewChat = document.getElementById('btn-new-chat');
+            const app = window.dashboardChatApp;
+            const userMenuButton = document.getElementById('user-menu-button');
+            const userDropdown = document.getElementById('user-dropdown');
+            const userMenuChevron = document.getElementById('user-menu-chevron');
             const btnToggle = document.getElementById('btn-toggle-sidebar');
             const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
 
-            // Add custom scrollbar style for ingredient list
+            // Custom scrollbar style for ingredient list
             const scrollStyle = document.createElement('style');
             scrollStyle.innerHTML = `
                 #ingredient-list::-webkit-scrollbar { width: 5px; }
@@ -173,145 +153,31 @@
             `;
             document.head.appendChild(scrollStyle);
 
-            // Ingredient Popup Logic
-            const btnAddIngredient = document.getElementById('btn-add-ingredient');
-            const ingredientPopup = document.getElementById('ingredient-popup');
-            const ingredientSearch = document.getElementById('ingredient-search');
-            const ingredientList = document.getElementById('ingredient-list');
-            let allIngredients = [];
-
-            async function fetchIngredients() {
-                try {
-                    // Fetching from a more comprehensive list if possible, or sticking to TheMealDB but with a fallback
-                    const res = await fetch('https://www.themealdb.com/api/json/v1/1/list.php?i=list');
-                    const data = await res.json();
-                    
-                    // TheMealDB has ~600, let's ensure we have a good base
-                    allIngredients = data.meals.map(m => m.strIngredient).sort();
-                    
-                    // Fallback: Ensure very common ones are always there if not in the API
-                    const commons = ['Tomato', 'Garlic', 'Onion', 'Salt', 'Pepper', 'Olive Oil', 'Chicken', 'Beef', 'Pork', 'Butter'];
-                    commons.forEach(c => {
-                        if (!allIngredients.find(i => i.toLowerCase() === c.toLowerCase())) {
-                            allIngredients.push(c);
-                        }
-                    });
-                    allIngredients.sort();
-                    
-                    renderIngredientList(allIngredients);
-                } catch (err) {
-                    console.error('Failed to fetch ingredients:', err);
-                    ingredientList.innerHTML = '<p class="text-xs text-center text-red-500 py-4">Failed to load ingredients. You can still type and add them!</p>';
-                }
-            }
-
-            function renderIngredientList(list, query = '') {
-                ingredientList.innerHTML = '';
-                
-                // 1. Add "Add Custom" option if the user has typed something
-                if (query.trim()) {
-                    const customBtn = document.createElement('button');
-                    customBtn.type = 'button';
-                    customBtn.className = 'w-full text-left px-3 py-3 rounded-xl text-sm text-primary bg-primary/5 hover:bg-primary/10 transition-all flex items-center justify-between group font-semibold border border-primary/20 mb-3';
-                    customBtn.innerHTML = `
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-                                <i data-lucide="plus" class="w-4 h-4"></i>
-                            </div>
-                            <span>Add "${query}"</span>
-                        </div>
-                        <span class="text-[10px] bg-primary/20 px-2 py-0.5 rounded text-primary uppercase font-bold">Custom</span>
-                    `;
-                    customBtn.onclick = () => {
-                        addIngredient(query);
-                        closeIngredientPopup();
-                    };
-                    ingredientList.appendChild(customBtn);
-                    lucide.createIcons();
-                }
-
-                if (list.length === 0 && !query.trim()) {
-                    ingredientList.innerHTML = `
-                        <div class="flex flex-col items-center justify-center py-12 text-gray-400">
-                            <i data-lucide="search-x" class="w-8 h-8 mb-3 opacity-50"></i>
-                            <p class="text-xs text-center px-6 leading-relaxed">No matching ingredients found.<br>Try typing to add a custom one!</p>
-                        </div>
-                    `;
-                    lucide.createIcons();
-                    return;
-                }
-
-                // 2. Show all matching results (No limit!)
-                list.forEach(name => {
-                    const btn = document.createElement('button');
-                    btn.type = 'button';
-                    btn.className = 'w-full text-left px-4 py-2.5 rounded-xl text-sm text-gray-700 hover:bg-gray-50 hover:text-primary transition-all flex items-center justify-between group';
-                    btn.innerHTML = `
-                        <span>${name}</span>
-                        <div class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <i data-lucide="plus" class="w-3.5 h-3.5 text-primary"></i>
-                        </div>
-                    `;
-                    btn.onclick = () => {
-                        addIngredient(name);
-                        closeIngredientPopup();
-                    };
-                    ingredientList.appendChild(btn);
-                });
-                lucide.createIcons();
-            }
-
-            if (btnAddIngredient) {
-                btnAddIngredient.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const isHidden = ingredientPopup.classList.contains('hidden');
-                    if (isHidden) {
-                        ingredientPopup.classList.remove('hidden');
-                        gsap.fromTo(ingredientPopup, 
-                            { opacity: 0, y: 10, scale: 0.95 },
-                            { opacity: 1, y: 0, scale: 1, duration: 0.2, ease: 'back.out(1.2)' }
-                        );
-                        if (allIngredients.length === 0) fetchIngredients();
-                        setTimeout(() => ingredientSearch.focus(), 100);
-                    } else {
-                        closeIngredientPopup();
-                    }
-                });
-            }
-
-            function closeIngredientPopup() {
-                if (ingredientPopup && !ingredientPopup.classList.contains('hidden')) {
-                    gsap.to(ingredientPopup, {
-                        opacity: 0, y: 10, scale: 0.95, duration: 0.15, onComplete: () => {
-                            ingredientPopup.classList.add('hidden');
-                            ingredientSearch.value = '';
-                            if (allIngredients.length > 0) renderIngredientList(allIngredients); // Reset list
+            // Close the user dropdown menu
+            function closeUserDropdown() {
+                if (userDropdown && !userDropdown.classList.contains('hidden')) {
+                    gsap.to(userDropdown, {
+                        opacity: 0,
+                        y: 10,
+                        scale: 0.95,
+                        duration: 0.15,
+                        onComplete: () => {
+                            userDropdown.classList.add('hidden');
+                            userMenuChevron.style.transform = 'rotate(0deg)';
                         }
                     });
                 }
             }
 
-            if (ingredientSearch) {
-                ingredientSearch.addEventListener('input', (e) => {
-                    const query = e.target.value.toLowerCase();
-                    const filtered = allIngredients.filter(i => i.toLowerCase().includes(query));
-                    renderIngredientList(filtered, e.target.value);
-                });
-            }
-
-            // User Dropdown Logic
-            const userMenuButton = document.getElementById('user-menu-button');
-            const userDropdown = document.getElementById('user-dropdown');
-            const userMenuChevron = document.getElementById('user-menu-chevron');
-
+            // Toggle user dropdown on click
             if (userMenuButton) {
-                userMenuButton.addEventListener('click', (e) => {
-                    e.stopPropagation();
+                userMenuButton.addEventListener('click', (event) => {
+                    event.stopPropagation();
                     const isHidden = userDropdown.classList.contains('hidden');
-                    
+
                     if (isHidden) {
                         userDropdown.classList.remove('hidden');
-                        gsap.fromTo(userDropdown, 
+                        gsap.fromTo(userDropdown,
                             { opacity: 0, y: 10, scale: 0.95 },
                             { opacity: 1, y: 0, scale: 1, duration: 0.2, ease: 'back.out(1.2)' }
                         );
@@ -322,72 +188,62 @@
                 });
             }
 
-            function closeUserDropdown() {
-                if (userDropdown && !userDropdown.classList.contains('hidden')) {
-                    gsap.to(userDropdown, {
-                        opacity: 0, y: 10, scale: 0.95, duration: 0.15, onComplete: () => {
-                            userDropdown.classList.add('hidden');
-                            userMenuChevron.style.transform = 'rotate(0deg)';
-                        }
-                    });
-                }
-            }
-
             // Close dropdown when clicking outside
-            document.addEventListener('click', (e) => {
-                if (userDropdown && !userDropdown.contains(e.target) && !userMenuButton.contains(e.target)) {
+            document.addEventListener('click', (event) => {
+                if (userDropdown && userMenuButton && !userDropdown.contains(event.target) && !userMenuButton.contains(event.target)) {
                     closeUserDropdown();
-                }
-                if (ingredientPopup && !ingredientPopup.contains(e.target) && !btnAddIngredient.contains(e.target)) {
-                    closeIngredientPopup();
                 }
             });
 
-            // Sidebar Toggle with GSAP animation
-            const backdrop = document.getElementById('sidebar-backdrop');
-            
-            // Initial state based on screen size
+            // Set sidebar visibility based on screen size
             function updateSidebarState() {
                 const isMobile = window.innerWidth < 1024;
+
                 if (isMobile) {
-                    sidebarOpen = false;
+                    app.state.sidebarOpen = false;
                     sidebar.style.transform = 'translateX(-100%)';
-                    if (backdrop) backdrop.classList.add('hidden');
+                    if (backdrop) {
+                        backdrop.classList.add('hidden');
+                    }
                 } else {
-                    sidebarOpen = true;
+                    app.state.sidebarOpen = true;
                     sidebar.style.transform = 'translateX(0)';
                     sidebar.style.width = '280px';
+                    sidebar.style.opacity = '1';
                 }
             }
 
-            // Run on load
             updateSidebarState();
 
+            // Toggle sidebar visibility
             if (btnToggle) {
                 btnToggle.addEventListener('click', () => {
                     const isMobile = window.innerWidth < 1024;
-                    sidebarOpen = !sidebarOpen;
+                    app.state.sidebarOpen = !app.state.sidebarOpen;
 
                     if (isMobile) {
-                        // Mobile: Slide in/out
                         gsap.to(sidebar, {
-                            x: sidebarOpen ? 0 : '-100%',
+                            x: app.state.sidebarOpen ? 0 : '-100%',
                             duration: 0.3,
                             ease: 'power2.out'
                         });
+
                         if (backdrop) {
-                            if (sidebarOpen) {
+                            if (app.state.sidebarOpen) {
                                 backdrop.classList.remove('hidden');
                                 gsap.fromTo(backdrop, { opacity: 0 }, { opacity: 1, duration: 0.3 });
                             } else {
-                                gsap.to(backdrop, { opacity: 0, duration: 0.3, onComplete: () => backdrop.classList.add('hidden') });
+                                gsap.to(backdrop, {
+                                    opacity: 0,
+                                    duration: 0.3,
+                                    onComplete: () => backdrop.classList.add('hidden')
+                                });
                             }
                         }
                     } else {
-                        // Desktop: Expand/Collapse
                         gsap.to(sidebar, {
-                            width: sidebarOpen ? 280 : 0,
-                            opacity: sidebarOpen ? 1 : 0,
+                            width: app.state.sidebarOpen ? 280 : 0,
+                            opacity: app.state.sidebarOpen ? 1 : 0,
                             duration: 0.3,
                             ease: 'power2.inOut'
                         });
@@ -395,339 +251,55 @@
                 });
             }
 
+            // Close sidebar on backdrop click (mobile)
             if (backdrop) {
                 backdrop.addEventListener('click', () => {
-                    if (sidebarOpen) {
-                        sidebarOpen = false;
+                    if (app.state.sidebarOpen) {
+                        app.state.sidebarOpen = false;
                         gsap.to(sidebar, { x: '-100%', duration: 0.3, ease: 'power2.in' });
-                        gsap.to(backdrop, { opacity: 0, duration: 0.3, onComplete: () => backdrop.classList.add('hidden') });
+                        gsap.to(backdrop, {
+                            opacity: 0,
+                            duration: 0.3,
+                            onComplete: () => backdrop.classList.add('hidden')
+                        });
                     }
                 });
             }
 
-            // Close sidebar on mobile when window is resized
+            // Reset sidebar state on window resize
             window.addEventListener('resize', () => {
                 const isMobile = window.innerWidth < 1024;
-                if (isMobile && sidebarOpen && sidebar.style.width !== '0px') {
-                    // Force close if switching to mobile and sidebar was "desktop open"
+                if (isMobile && app.state.sidebarOpen && sidebar.style.width !== '0px') {
                     updateSidebarState();
                 }
             });
+        });
+    </script>
 
-            // Auto-resize textarea as user types
-            if (chatInput) {
-                chatInput.addEventListener('input', () => {
-                    chatInput.style.height = 'auto';
-                    chatInput.style.height = Math.min(chatInput.scrollHeight, 128) + 'px';
-                });
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const app = window.dashboardChatApp;
 
-                // Handle Enter key for sending messages (Shift+Enter for new line)
-                chatInput.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        if (chatForm) chatForm.dispatchEvent(new Event('submit', { bubbles: true }));
-                    }
-                });
+            // Wait for modular components to load
+            if (!app.sidebar || !app.chatInterface) {
+                return;
             }
 
-            // Fetch and display the list of recent chats
-            async function loadChatList() {
-                try {
-                    const res = await fetch('/api/chats');
-                    const chats = await res.json();
-                    chatList.innerHTML = '';
+            // Initialize chat list in sidebar
+            await app.sidebar.loadChatList();
 
-                    if (chats.length === 0) {
-                        chatList.innerHTML = `<p class="text-xs text-gray-400 px-3 py-2">No chats yet. Start a new one!</p>`;
-                        return;
-                    }
-
-                    chats.forEach(chat => {
-                        const btn = document.createElement('button');
-                        // Highlight the currently active chat button with primary colors
-                        btn.className = `w-full text-left px-3 py-2.5 rounded-lg hover:bg-gray-50 text-gray-700 text-sm flex items-center gap-3 transition-colors group ${chat.id === currentChatId ? 'bg-primary/10 text-primary' : ''}`;
-                        btn.innerHTML = `
-                        <i data-lucide="message-square" class="w-4 h-4 text-gray-400 flex-shrink-0"></i>
-                        <span class="truncate flex-1">${escapeHtml(chat.title)}</span>
-                        <span class="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-red-500 delete-chat-btn" data-id="${chat.id}">
-                            <i data-lucide="trash-2" class="w-3 h-3"></i>
-                        </span>`;
-                        btn.addEventListener('click', (e) => {
-                            // Ensure clicking the delete icon doesn't trigger a chat load
-                            if (e.target.closest('.delete-chat-btn')) return;
-                            loadChat(chat.id);
-                        });
-                        chatList.appendChild(btn);
-                    });
-
-                    lucide.createIcons(); // Refresh Lucide icons for dynamically added content
-
-                    // Set up event listeners for delete buttons in the sidebar
-                    document.querySelectorAll('.delete-chat-btn').forEach(btn => {
-                        btn.addEventListener('click', async (e) => {
-                            e.stopPropagation(); // Prevent the parent button's click event
-                            const id = btn.dataset.id;
-                            // Delete chat from database
-                            await fetch(`/api/chats/${id}`, { method: 'DELETE' });
-                            // If the deleted chat was active, clear the message display
-                            if (parseInt(id) === currentChatId) {
-                                messagesEl.innerHTML = '';
-                                currentChatId = null;
-                            }
-                            loadChatList(); // Refresh the sidebar list
-                        });
-                    });
-
-                } catch (err) {
-                    console.error('Failed to load chats:', err);
-                }
-            }
-
-            // Load and display messages for a specific chat
-            async function loadChat(chatId) {
-                currentChatId = chatId;
-                messagesEl.innerHTML = '';
-
-                try {
-                    const res = await fetch(`/api/chats/${chatId}/messages`);
-                    const messages = await res.json();
-                    messages.forEach(msg => appendMessage(msg.role, msg.content, false));
-                    scrollToBottom();
-                    loadChatList(); // Update highlight in sidebar
-                } catch (err) {
-                    console.error('Failed to load messages:', err);
-                }
-            }
-
-            // Start a new chat session and reset local UI state
-            btnNewChat.addEventListener('click', async () => {
-                try {
-                    // Create chat in backend
-                    const res = await fetch('/api/chats', { method: 'POST' });
-                    const data = await res.json();
-                    currentChatId = data.chat_id;
-                    
-                    // Clear UI for the fresh session
-                    messagesEl.innerHTML = '';
-                    ingredients = [];
-                    renderTags();
-                    loadChatList();
-                    
-                    // Greet the user from the model's perspective
-                    appendMessage('model', "Hi there! I'm your Dishcovery chef 👨‍🍳 What ingredients do you have in your kitchen today, or what are you craving?");
-                } catch (err) {
-                    console.error('Failed to create chat:', err);
-                }
-            });
-
-            // Handle chat form submission
-            chatForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const text = chatInput.value.trim();
-
-                // Ingredient tag shortcut: Type "+Ingredient" to quickly add a tag
-                if (text.startsWith('+')) {
-                    const ingName = text.substring(1).trim();
-                    if (ingName) addIngredient(ingName);
-                    chatInput.value = '';
-                    chatInput.style.height = 'auto';
-                    return;
-                }
-
-                // If input is empty but tags exist, use tags as the prompt
-                let userText = text;
-                if (!text && ingredients.length > 0) {
-                    userText = `Find recipes using: ${ingredients.join(', ')}`;
-                }
-                if (!userText) return;
-
-                // Ensure a chat session exists before sending
-                if (!currentChatId) {
-                    const res = await fetch('/api/chats', { method: 'POST' });
-                    const data = await res.json();
-                    currentChatId = data.chat_id;
-                }
-
-                appendMessage('user', userText);
-                chatInput.value = '';
-                chatInput.style.height = 'auto';
-                scrollToBottom();
-
-                // Show typing indicator while the AI is "thinking"
-                const typingId = appendTyping();
-
-                try {
-                    // Send message to the backend API
-                    const res = await fetch(`/api/chats/${currentChatId}/messages`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ message: userText })
-                    });
-                    const data = await res.json();
-
-                    removeTyping(typingId); // Clear the loading state
-                    appendMessage('model', data.reply); // Show AI's response
-                    loadChatList(); // Update sidebar (titles might change based on first message)
-                    scrollToBottom();
-                } catch (err) {
-                    removeTyping(typingId);
-                    appendMessage('model', '⚠️ Something went wrong. Please try again.');
-                    console.error(err);
-                }
-            });
-
-            // Render a message in the chat container
-            function appendMessage(role, text, animate = true) {
-                const isUser = role === 'user';
-                const div = document.createElement('div');
-                div.className = `flex gap-4 ${isUser ? 'flex-row-reverse' : ''}`;
-
-                let formatted;
-                if (isUser) {
-                    formatted = escapeHtml(text).replace(/\n/g, '<br>');
+            try {
+                // Resume last chat or create a new one
+                const chats = await app.api.fetchChats();
+                if (chats.length > 0) {
+                    app.state.currentChatId = chats[0].id;
+                    await app.chatInterface.loadChat(chats[0].id);
                 } else {
-                    // Custom renderer to add referrerpolicy to images to prevent ORB errors
-                    const renderer = new marked.Renderer();
-                    const originalImageRenderer = renderer.image;
-                    renderer.image = (href, title, text) => {
-                        const html = originalImageRenderer.call(renderer, href, title, text);
-                        return html.replace(/^<img/, '<img referrerpolicy="no-referrer"');
-                    };
-                    formatted = marked.parse(text, { renderer });
+                    await app.sidebar.createNewChat();
                 }
-
-                div.innerHTML = `
-                <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0
-                            ${isUser ? 'bg-primary/20 text-primary' : 'bg-secondary/20 text-secondary'}">
-                    <i data-lucide="${isUser ? 'user' : 'chef-hat'}" class="w-5 h-5"></i>
-                </div>
-                <div class="flex flex-col max-w-[80%] ${isUser ? 'items-end' : 'items-start'}">
-                    <div class="px-5 py-3.5 rounded-2xl text-sm leading-relaxed
-                                ${isUser
-                        ? 'bg-primary text-white rounded-tr-sm'
-                        : 'bg-white border border-gray-100 shadow-sm text-gray-800 rounded-tl-sm ai-message'}">
-                        ${formatted}
-                    </div>
-                </div>`;
-
-                messagesEl.appendChild(div);
-                lucide.createIcons();
-
-                if (animate) {
-                    gsap.from(div, { opacity: 0, y: 12, duration: 0.3, ease: 'power2.out' });
-                }
+            } catch (error) {
+                console.error('Init failed:', error);
             }
-
-            // Show typing animation while waiting for API response
-            function appendTyping() {
-                const id = 'typing-' + Date.now(); // Unique ID for targeting removal later
-                const div = document.createElement('div');
-                div.id = id;
-                div.className = 'flex gap-4';
-                div.innerHTML = `
-                <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-secondary/20 text-secondary">
-                    <i data-lucide="chef-hat" class="w-5 h-5"></i>
-                </div>
-                <div class="px-5 py-4 rounded-2xl bg-white border border-gray-100 shadow-sm rounded-tl-sm">
-                    <div class="flex gap-1.5 items-center">
-                        <!-- Three-dot bounce animation -->
-                        <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0s"></span>
-                        <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.15s"></span>
-                        <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.3s"></span>
-                    </div>
-                </div>`;
-                messagesEl.appendChild(div);
-                lucide.createIcons();
-                gsap.from(div, { opacity: 0, y: 10, duration: 0.25 }); // Smooth slide-up entry
-                scrollToBottom();
-                return id; // Return ID so the caller can remove it
-            }
-
-            function removeTyping(id) {
-                document.getElementById(id)?.remove();
-            }
-
-            // Add a new ingredient to the active list
-            function addIngredient(name) {
-                if (!name || ingredients.map(i => i.toLowerCase()).includes(name.toLowerCase())) return;
-                ingredients.push(name);
-                renderTags();
-            }
-
-            // Update the UI with current ingredient tags
-            function renderTags() {
-                ingredientTags.innerHTML = '';
-
-                if (ingredients.length === 0) {
-                    ingredientTags.innerHTML = `
-                    <span class="text-sm text-gray-400 flex items-center h-8">
-                        Tip: Type <span class="font-mono mx-1 text-primary">+Tomato</span> and press Enter to add ingredient tags
-                    </span>`;
-                    return;
-                }
-
-                ingredients.forEach(ing => {
-                    const span = document.createElement('span');
-                    span.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary text-sm font-medium rounded-lg border border-primary/20';
-                    span.innerHTML = `
-                    ${escapeHtml(ing)}
-                    <button type="button" class="hover:bg-primary/20 rounded-full p-0.5 transition-colors remove-tag" data-ing="${escapeHtml(ing)}">
-                        <i data-lucide="x" class="w-3 h-3"></i>
-                    </button>`;
-                    ingredientTags.appendChild(span);
-                    // Pop-in animation for each new tag
-                    gsap.from(span, { scale: 0.8, opacity: 0, duration: 0.2, ease: 'back.out(1.5)' });
-                });
-
-                lucide.createIcons();
-
-                // Add removal logic for each tag's close button
-                document.querySelectorAll('.remove-tag').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        ingredients = ingredients.filter(i => i !== btn.dataset.ing);
-                        renderTags(); // Re-render the whole tag list
-                    });
-                });
-            }
-
-            // Helper: Scroll chat area to the latest message
-            function scrollToBottom() {
-                document.getElementById('messages-end')?.scrollIntoView({ behavior: 'smooth' });
-            }
-
-            // Helper: Prevent XSS by escaping HTML special characters
-            function escapeHtml(text) {
-                return String(text)
-                    .replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
-                    .replace(/"/g, '&quot;');
-            }
-
-            // Initial application setup on page load
-            (async () => {
-                await loadChatList();
-
-                try {
-                    const res = await fetch('/api/chats');
-                    const chats = await res.json();
-
-                    if (chats.length > 0) {
-                        // Load the most recent chat if it exists
-                        await loadChat(chats[0].id);
-                    } else {
-                        // Otherwise, create a fresh chat automatically
-                        const newRes = await fetch('/api/chats', { method: 'POST' });
-                        const newData = await newRes.json();
-                        currentChatId = newData.chat_id;
-                        appendMessage('model', "Hi there! I'm your Dishcovery chef 👨‍🍳 What ingredients do you have in your kitchen today, or what are you craving?");
-                        loadChatList();
-                    }
-                } catch (err) {
-                    console.error('Init failed:', err);
-                }
-            })();
-
         });
     </script>
 {% endblock %}
