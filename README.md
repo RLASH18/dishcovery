@@ -22,7 +22,7 @@ Don't know what to type? Browse through over 600+ ingredients and select what's 
 
 ## 🛠️ Tech Stack
 
-<table>
+<table border="0">
   <tr>
     <td><a href="https://flask.palletsprojects.com/" target="_blank" rel="noreferrer"><picture><source media="(prefers-color-scheme: dark)" srcset="https://cdn.simpleicons.org/flask/ffffff"><img src="https://cdn.simpleicons.org/flask/000000" alt="Flask" width="40" height="40"/></picture></a></td>
     <td><a href="https://www.python.org" target="_blank" rel="noreferrer"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python" width="40" height="40"/></a></td>
