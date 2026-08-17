@@ -7,10 +7,10 @@
 
 ---
 
-## 🌟 Overview
+## Overview
 **Dishcovery** is a modern web application designed to help food enthusiasts find recipes based on what they already have in their kitchen. By leveraging the power of **Google Gemini** and **TheMealDB API**, it provides a conversational and interactive experience to transform simple ingredients into delicious dishes.
 
-## 📸 Screenshots
+## Screenshots
 
 ### **Chat Mode**
 Experience a conversational AI that understands your cravings and suggests creative recipes.
@@ -20,7 +20,7 @@ Experience a conversational AI that understands your cravings and suggests creat
 Don't know what to type? Browse through over 600+ ingredients and select what's available in your pantry.
 ![Ingredients Mode](app/static/img/ingredients_mode.png)
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 <table border="0">
   <tr>
@@ -39,14 +39,14 @@ Don't know what to type? Browse through over 600+ ingredients and select what's 
 - **Frontend**: Jinja2 Templates, Tailwind CSS, Vanilla JS, GSAP
 - **External API**: TheMealDB
 
-## 🚀 Key Features
+## Key Features
 - **Dual Input Modes**: Seamlessly switch between a natural language **Chat Mode** and a structured **Ingredients Mode**.
 - **Visual Uploads**: Upload images of your ingredients for AI-assisted recognition.
 - **Social Authentication**: Secure login via **Google** and **Facebook** OAuth integration.
 - **Smart History**: Save your culinary discoveries and resume past conversations easily.
 - **Responsive Design**: Modular component-based architecture built for both desktop and mobile.
 
-## ⚙️ Setup Instructions
+## Setup Instructions
 
 ### 1. Prerequisites
 - Python 3.8+
