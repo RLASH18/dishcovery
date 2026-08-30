@@ -2,9 +2,9 @@ tailwind.config = {
     theme: {
         extend: {
             colors: {
-                primary: '#84cc16',
-                'primary-hover': '#65a30d',
-                secondary: '#d97706',
+                primary: '#F95724',
+                'primary-hover': '#DE3C08',
+                secondary: '#F59E0B',
                 'text-main': '#1c1917',
             }
         }

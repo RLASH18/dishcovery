@@ -29,7 +29,7 @@ html {
 body {
     font-family: 'Poppins', 'Montserrat', ui-sans-serif, system-ui, sans-serif;
     color: #1c1917;
-    background-color: #fafaf9;
+    background-color: #faf8f5;
 }
 
 /* Marquee animation */
@@ -63,7 +63,7 @@ body {
 
 /* Prose reset inside AI chat bubbles */
 .ai-message p {
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
 }
 
 .ai-message p:last-child {
@@ -71,10 +71,35 @@ body {
 }
 
 .ai-message ul {
-    margin: 0.25rem 0 0.5rem 1rem;
+    margin: 0.25rem 0 0.75rem 1rem;
     list-style: disc;
+}
+
+.ai-message ol {
+    margin: 0.25rem 0 0.75rem 1.25rem;
+    list-style: decimal;
+}
+
+.ai-message li {
+    margin-bottom: 0.25rem;
 }
 
 .ai-message strong {
     font-weight: 600;
+}
+
+.ai-message img {
+    border-radius: 0.75rem;
+    margin: 0.75rem 0;
+    max-width: 100%;
+    max-height: 280px;
+    object-fit: cover;
+    display: block;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.ai-message a {
+    color: #F95724;
+    text-decoration: underline;
+    font-weight: 500;
 }

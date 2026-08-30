@@ -1,4 +1,4 @@
-﻿<!-- Message History -->
+<!-- Message History -->
 <div class="flex-1 overflow-y-auto p-4 md:p-6" id="chat-area">
     <div class="max-w-3xl mx-auto space-y-6" id="messages-container">
         <!-- Injected -->
@@ -322,15 +322,16 @@
                 formatted = app.escapeHtml(text).replace(/\n/g, '<br>');
             } else {
                 // Parse markdown for model messages
-                const renderer = new marked.Renderer();
-                const originalImageRenderer = renderer.image;
-
-                // Add referrerpolicy to images
-                renderer.image = (href, title, altText) => {
-                    const html = originalImageRenderer.call(renderer, href, title, altText);
-                    return html.replace(/^<img/, '<img referrerpolicy="no-referrer"');
+                const renderer = {
+                    image(token) {
+                        const href = typeof token === 'object' && token ? token.href : arguments[0];
+                        const title = typeof token === 'object' && token ? (token.title || '') : (arguments[1] || '');
+                        const alt = typeof token === 'object' && token ? (token.text || '') : (arguments[2] || '');
+                        return `<img src="${href}" alt="${alt}" title="${title}" referrerpolicy="no-referrer" class="rounded-xl my-3 shadow-md max-w-full max-h-72 object-cover border border-gray-100" loading="lazy" />`;
+                    }
                 };
-                formatted = marked.parse(text, { renderer });
+                marked.use({ renderer });
+                formatted = marked.parse(text);
             }
 
             div.innerHTML = `
