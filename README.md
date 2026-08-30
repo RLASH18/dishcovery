@@ -98,7 +98,30 @@ GEMINI_API_KEY=your_gemini_api_key
 MEALDB_BASE_URL=https://www.themealdb.com/api/json/v1/1/
 ```
 
-### 4. Run the application
+### 4. Database Setup & Migration
+1. Ensure your **MySQL Server** is running and create the database:
+   ```sql
+   CREATE DATABASE dishcovery_db;
+   ```
+
+2. Create the tables in MySQL using Python:
+   * **Start Python in your terminal**:
+     ```bash
+     python
+     ```
+   * **Run these lines**:
+     ```python
+     from app import create_app, db
+
+     app = create_app()
+
+     with app.app_context():
+         db.create_all()
+
+     exit()
+     ```
+
+### 5. Run the application
 ```bash
 python run.py
 ```
@@ -106,5 +129,5 @@ python run.py
 ---
 
 <div align="center">
-  <p>Dishcovery © 2026</p>
+  <sub>© 2026 Dishcovery. All rights reserved.</sub>
 </div>
