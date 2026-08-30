@@ -1,5 +1,13 @@
-﻿<!-- New Chat -->
-<div class="px-4 pt-2 pb-4">
+<!-- Brand -->
+<div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+    <a href="/" class="text-2xl font-bold text-primary flex items-center gap-2.5">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Dishcovery Logo" class="w-8 h-8 object-contain">
+        <span>Dishcovery</span>
+    </a>
+</div>
+
+<!-- New Chat -->
+<div class="px-4 pt-4 pb-2">
     <button id="btn-new-chat"
         class="w-full bg-primary/10 text-primary hover:bg-primary hover:text-white font-semibold py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2">
         <i data-lucide="plus" class="w-5 h-5"></i>

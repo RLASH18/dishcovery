@@ -1,7 +1,9 @@
 <div align="center">
     <br />
-    <img src="app/static/img/logo.png" height="60" alt="Dishcovery Logo">
-    <br />
+    <h1>
+        <img src="app/static/img/logo.png" width="45" height="45" alt="Dishcovery Logo" style="vertical-align: middle; margin-right: 8px;" valign="middle" />
+        Dishcovery
+    </h1>
     <p>Your AI-powered culinary companion for discovering your next favorite meal.</p>
 </div>
 
